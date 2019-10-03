@@ -2,7 +2,7 @@ package no.ssb.dc.application.controller;
 
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.Headers;
-import no.ssb.dc.api.application.Controller;
+import no.ssb.dc.application.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

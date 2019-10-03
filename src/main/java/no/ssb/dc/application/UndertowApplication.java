@@ -2,9 +2,6 @@ package no.ssb.dc.application;
 
 import io.undertow.Undertow;
 import no.ssb.config.DynamicConfiguration;
-import no.ssb.dc.api.application.Application;
-import no.ssb.dc.api.application.Controller;
-import no.ssb.dc.api.application.Service;
 import no.ssb.dc.api.services.InjectionParameters;
 import no.ssb.dc.api.services.ObjectCreator;
 import no.ssb.dc.application.controller.NamespaceController;

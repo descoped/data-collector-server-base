@@ -1,7 +1,7 @@
 package no.ssb.dc.application.service;
 
 import no.ssb.config.DynamicConfiguration;
-import no.ssb.dc.api.application.Service;
+import no.ssb.dc.application.Service;
 import no.ssb.dc.content.RawdataFileSystemWriter;
 import no.ssb.rawdata.api.RawdataClient;
 

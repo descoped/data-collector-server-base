@@ -1,7 +1,5 @@
 package no.ssb.dc.application;
 
-import no.ssb.dc.api.application.Controller;
-import no.ssb.dc.api.application.Service;
 import org.testng.annotations.Test;
 
 public class ServiceProviderDiscoveryTest {
