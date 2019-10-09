@@ -8,9 +8,7 @@ import no.ssb.dc.application.Controller;
 import java.util.Map;
 import java.util.NavigableMap;
 
-public class NamespaceController implements HttpHandler {
-
-    private final String defaultNamespace;
+public class DispatchController implements HttpHandler {
 
     private final String corsAllowOrigin;
     private final String corsAllowHeaders;
@@ -18,12 +16,8 @@ public class NamespaceController implements HttpHandler {
     private final int undertowPort;
     private final NavigableMap<String, Controller> controllers;
 
-    public NamespaceController(String namespaceDefault, String corsAllowOrigin, String corsAllowHeaders, boolean corsAllowOriginTest, int undertowPort, NavigableMap<String, Controller> controllers) {
+    public DispatchController(String corsAllowOrigin, String corsAllowHeaders, boolean corsAllowOriginTest, int undertowPort, NavigableMap<String, Controller> controllers) {
         this.controllers = controllers;
-        if (!namespaceDefault.startsWith("/")) {
-            namespaceDefault = "/" + namespaceDefault;
-        }
-        this.defaultNamespace = namespaceDefault;
         this.corsAllowOrigin = corsAllowOrigin;
         this.corsAllowHeaders = corsAllowHeaders;
         this.corsAllowOriginTest = corsAllowOriginTest;
@@ -60,9 +54,9 @@ public class NamespaceController implements HttpHandler {
             return;
         }
 
-        if (requestPath.startsWith(defaultNamespace)) {
-            String path = requestPath.substring(defaultNamespace.length());
-            Map.Entry<String, Controller> entry = controllers.floorEntry(path);
+        String path = requestPath.substring(1).split("/")[0];
+        Map.Entry<String, Controller> entry = controllers.floorEntry("/"+path);
+        if (entry != null) {
             Controller controller = entry.getValue();
             controller.handleRequest(exchange);
             return;

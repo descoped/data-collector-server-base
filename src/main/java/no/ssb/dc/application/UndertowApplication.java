@@ -4,7 +4,7 @@ import io.undertow.Undertow;
 import no.ssb.config.DynamicConfiguration;
 import no.ssb.dc.api.services.InjectionParameters;
 import no.ssb.dc.api.services.ObjectCreator;
-import no.ssb.dc.application.controller.NamespaceController;
+import no.ssb.dc.application.controller.DispatchController;
 import no.ssb.dc.application.service.RawdataFileSystemService;
 import no.ssb.rawdata.api.RawdataClient;
 import no.ssb.rawdata.api.RawdataClientInitializer;
@@ -40,20 +40,19 @@ public class UndertowApplication implements Application {
         controllerInjectionParameters.putAll(serviceInjectionParameters);
 
         Map<Class<? extends Service>, Service> services = new LinkedHashMap<>();
-        for(Class<Service> serviceClass : ServiceProviderDiscovery.discover(Service.class)) {
+        for (Class<Service> serviceClass : ServiceProviderDiscovery.discover(Service.class)) {
             Service service = ObjectCreator.newInstance(serviceClass, serviceInjectionParameters);
             controllerInjectionParameters.register(serviceClass, service);
             services.put(serviceClass, service);
         }
 
         NavigableMap<String, Controller> controllers = new TreeMap<>();
-        for(Class<Controller> controllerClass : ServiceProviderDiscovery.discover(Controller.class)) {
+        for (Class<Controller> controllerClass : ServiceProviderDiscovery.discover(Controller.class)) {
             Controller controller = ObjectCreator.newInstance(controllerClass, controllerInjectionParameters);
             controllers.put(controller.contextPath(), controller);
         }
 
-        NamespaceController namespaceController = new NamespaceController(
-                configuration.evaluateToString("namespace.default"),
+        DispatchController dispatchController = new DispatchController(
                 configuration.evaluateToString("http.cors.allow.origin"),
                 configuration.evaluateToString("http.cors.allow.header"),
                 configuration.evaluateToBoolean("http.cors.allow.origin.test"),
@@ -61,23 +60,23 @@ public class UndertowApplication implements Application {
                 controllers
         );
 
-        return new UndertowApplication(configuration, host, port, namespaceController, services);
+        return new UndertowApplication(configuration, host, port, dispatchController, services);
     }
 
     private final Undertow server;
     private final DynamicConfiguration configuration;
     private final String host;
     private final int port;
-    private final NamespaceController namespaceController;
+    private final DispatchController dispatchController;
     private final Map<Class<? extends Service>, Service> services;
 
-    <T, R> UndertowApplication(DynamicConfiguration configuration, String host, int port, NamespaceController namespaceController, Map<Class<? extends Service>, Service> services) {
+    <T, R> UndertowApplication(DynamicConfiguration configuration, String host, int port, DispatchController dispatchController, Map<Class<? extends Service>, Service> services) {
         this.configuration = configuration;
         this.host = host;
         this.port = port;
-        this.namespaceController = namespaceController;
+        this.dispatchController = dispatchController;
         this.services = services;
-        NamespaceController handler = namespaceController;
+        DispatchController handler = dispatchController;
         Undertow server = Undertow.builder()
                 .addHttpListener(port, host)
                 .setHandler(handler)
@@ -101,6 +100,7 @@ public class UndertowApplication implements Application {
             unwrap(RawdataFileSystemService.class).start();
         }
         server.start();
+        enableAllServices();
         LOG.info("Started Data Collector. PID {}", ProcessHandle.current().pid());
         LOG.info("Listening on {}:{}", host, port);
     }
@@ -108,7 +108,7 @@ public class UndertowApplication implements Application {
     @Override
     public void stop() {
         server.stop();
-        for(Service service : services.values()) {
+        for (Service service : services.values()) {
             service.stop();
         }
         LOG.info("Leaving.. Bye!");
@@ -116,7 +116,8 @@ public class UndertowApplication implements Application {
 
     @Override
     public void enableAllServices() {
-        for(Service service : services.values()) {
+        for (Service service : services.values()) {
+            LOG.info("Starting: {}", service.getClass().getName());
             service.start();
         }
     }

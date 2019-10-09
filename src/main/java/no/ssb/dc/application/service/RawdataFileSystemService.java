@@ -22,6 +22,9 @@ public class RawdataFileSystemService implements Service {
 
     @Override
     public void start() {
+        if (configuration.evaluateToString("data.collector.rawdata.dump.location") == null) {
+            return;
+        }
         if (!running.get()) {
             running.set(true);
             String location = configuration.evaluateToString("data.collector.rawdata.dump.location");

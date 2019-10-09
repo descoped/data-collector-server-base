@@ -26,6 +26,7 @@ public class ServiceProviderDiscovery {
     public static <T> Iterable<Class<T>> discover(Class<T> serviceProviderClass) {
         List<Class<T>> serviceList = new ArrayList<>();
         try (ScanResult scanResult = new ClassGraph().whitelistPathsNonRecursive("META-INF/services").scan()) {
+            LOG.trace("serviceProviderClass: {}", serviceProviderClass.getName());
             scanResult.getResourcesWithLeafName(serviceProviderClass.getName()).forEachByteArray((Resource res, byte[] content) -> {
                 BufferedReader reader = new BufferedReader(new StringReader(new String(content)));
                 reader.lines().forEach(clazz -> serviceList.add(classForName(clazz)));
