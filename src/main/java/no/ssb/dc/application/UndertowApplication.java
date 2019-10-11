@@ -5,10 +5,6 @@ import no.ssb.config.DynamicConfiguration;
 import no.ssb.dc.api.services.InjectionParameters;
 import no.ssb.dc.api.services.ObjectCreator;
 import no.ssb.dc.application.controller.DispatchController;
-import no.ssb.dc.application.service.RawdataFileSystemService;
-import no.ssb.rawdata.api.RawdataClient;
-import no.ssb.rawdata.api.RawdataClientInitializer;
-import no.ssb.service.provider.api.ProviderConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +13,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
-public class UndertowApplication implements Application {
+public class UndertowApplication {
 
     private static final Logger LOG = LoggerFactory.getLogger(UndertowApplication.class);
 
@@ -33,8 +29,6 @@ public class UndertowApplication implements Application {
 
         InjectionParameters serviceInjectionParameters = new InjectionParameters();
         serviceInjectionParameters.register(DynamicConfiguration.class, configuration);
-        RawdataClient rawdataClient = ProviderConfigurator.configure(configuration.asMap(), configuration.evaluateToString("rawdata.client.provider"), RawdataClientInitializer.class);
-        serviceInjectionParameters.register(RawdataClient.class, rawdataClient);
 
         InjectionParameters controllerInjectionParameters = new InjectionParameters();
         controllerInjectionParameters.putAll(serviceInjectionParameters);
@@ -84,28 +78,21 @@ public class UndertowApplication implements Application {
         this.server = server;
     }
 
-    @Override
     public String getHost() {
         return host;
     }
 
-    @Override
     public int getPort() {
         return port;
     }
 
-    @Override
     public void start() {
-        if (configuration.evaluateToBoolean("data.collector.rawdata.dump.enabled")) {
-            unwrap(RawdataFileSystemService.class).start();
-        }
         server.start();
         enableAllServices();
         LOG.info("Started Data Collector. PID {}", ProcessHandle.current().pid());
         LOG.info("Listening on {}:{}", host, port);
     }
 
-    @Override
     public void stop() {
         server.stop();
         for (Service service : services.values()) {
@@ -114,7 +101,6 @@ public class UndertowApplication implements Application {
         LOG.info("Leaving.. Bye!");
     }
 
-    @Override
     public void enableAllServices() {
         for (Service service : services.values()) {
             LOG.info("Starting: {}", service.getClass().getName());
@@ -122,17 +108,14 @@ public class UndertowApplication implements Application {
         }
     }
 
-    @Override
     public void enable(Class<? extends Service> service) {
         services.get(service).start();
     }
 
-    @Override
     public void disable(Class<? extends Service> service) {
         services.get(service).stop();
     }
 
-    @Override
     public <R> R unwrap(Class<R> clazz) {
         if (clazz.isAssignableFrom(server.getClass())) {
             return (R) server;
