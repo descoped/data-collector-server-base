@@ -86,7 +86,7 @@ steps:
       - code-analysis
       - codacy
       - codecov-plugin
-      - codecov-manua
+      - codecov-manual
 
   - name: slack
     image: plugins/slack
