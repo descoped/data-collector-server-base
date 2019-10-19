@@ -3,6 +3,7 @@ package no.ssb.dc.application.controller;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.HttpString;
+import no.ssb.dc.application.ApplicationException;
 
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -49,7 +50,7 @@ class CORSController implements HttpHandler {
                     }
                 } catch (MalformedURLException me) {
                     String msg = String.format("The configuration 'http.cors.allow.origin' contains a malformed URL: %s", allowedDomains[n]);
-                    throw new RuntimeException(msg, me);
+                    throw new ApplicationException(msg, me);
                 }
             }
             return acceptDomain;
@@ -87,7 +88,7 @@ class CORSController implements HttpHandler {
         if (validOrigin) {
             applyCORSHeaders();
         } else {
-            throw new RuntimeException("Something is wrong with the CORSController!");
+            throw new ApplicationException("Something is wrong with the CORSController!");
         }
     }
 

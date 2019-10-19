@@ -17,12 +17,27 @@ public class UndertowApplication {
 
     private static final Logger LOG = LoggerFactory.getLogger(UndertowApplication.class);
 
-    public static <T, R> UndertowApplication initializeUndertowApplication(DynamicConfiguration configuration) {
+    private final Undertow server;
+    private final String host;
+    private final int port;
+    private final Map<Class<? extends Service>, Service> services;
+
+    private UndertowApplication(String host, int port, DispatchController dispatchController, Map<Class<? extends Service>, Service> services) {
+        this.host = host;
+        this.port = port;
+        this.services = services;
+        this.server = Undertow.builder()
+                .addHttpListener(port, host)
+                .setHandler(dispatchController)
+                .build();
+    }
+
+    public static UndertowApplication initializeUndertowApplication(DynamicConfiguration configuration) {
         int port = configuration.evaluateToInt("http.port");
         return initializeUndertowApplication(configuration, port);
     }
 
-    public static <T, R> UndertowApplication initializeUndertowApplication(DynamicConfiguration configuration, Integer port) {
+    public static UndertowApplication initializeUndertowApplication(DynamicConfiguration configuration, Integer port) {
         LOG.info("Initializing Data Collector server ...");
 
         String host = configuration.evaluateToString("http.host");
@@ -54,28 +69,7 @@ public class UndertowApplication {
                 controllers
         );
 
-        return new UndertowApplication(configuration, host, port, dispatchController, services);
-    }
-
-    private final Undertow server;
-    private final DynamicConfiguration configuration;
-    private final String host;
-    private final int port;
-    private final DispatchController dispatchController;
-    private final Map<Class<? extends Service>, Service> services;
-
-    <T, R> UndertowApplication(DynamicConfiguration configuration, String host, int port, DispatchController dispatchController, Map<Class<? extends Service>, Service> services) {
-        this.configuration = configuration;
-        this.host = host;
-        this.port = port;
-        this.dispatchController = dispatchController;
-        this.services = services;
-        DispatchController handler = dispatchController;
-        Undertow server = Undertow.builder()
-                .addHttpListener(port, host)
-                .setHandler(handler)
-                .build();
-        this.server = server;
+        return new UndertowApplication(host, port, dispatchController, services);
     }
 
     public String getHost() {

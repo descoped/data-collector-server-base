@@ -11,19 +11,22 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ServiceProviderDiscovery {
+class ServiceProviderDiscovery {
 
     private static final Logger LOG = LoggerFactory.getLogger(ServiceProviderDiscovery.class);
+
+    private ServiceProviderDiscovery() {
+    }
 
     static <T> Class<T> classForName(String clazz) {
         try {
             return (Class<T>) Class.forName(clazz);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new ApplicationException(e);
         }
     }
 
-    public static <T> Iterable<Class<T>> discover(Class<T> serviceProviderClass) {
+    static <T> Iterable<Class<T>> discover(Class<T> serviceProviderClass) {
         List<Class<T>> serviceList = new ArrayList<>();
         try (ScanResult scanResult = new ClassGraph().whitelistPathsNonRecursive("META-INF/services").scan()) {
             LOG.trace("serviceProviderClass: {}", serviceProviderClass.getName());
