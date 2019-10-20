@@ -32,8 +32,8 @@ public class HealthApplicationResource implements HealthResource {
                 applicationMonitor.getServerStatus().name(),
                 applicationMonitor.getHost(),
                 applicationMonitor.getPort(),
-                applicationMonitor.getUptime()
-        );
+                applicationMonitor.getSince(),
+                applicationMonitor.getUptime());
     }
 
     @SuppressWarnings("WeakerAccess")
@@ -41,12 +41,14 @@ public class HealthApplicationResource implements HealthResource {
         @JsonProperty public final String status;
         @JsonProperty public final String host;
         @JsonProperty public final Integer port;
-        @JsonProperty("since") public final String uptime;
+        @JsonProperty public final String since;
+        @JsonProperty public final String uptime;
 
-        public ServerInfo(String status, String host, Integer port, String uptime) {
+        public ServerInfo(String status, String host, Integer port, String since, String uptime) {
             this.status = status;
             this.host = host;
             this.port = port;
+            this.since = since;
             this.uptime = uptime;
         }
     }

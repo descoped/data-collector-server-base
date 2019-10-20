@@ -44,9 +44,37 @@ public class HealthApplicationMonitor {
         this.port.set(port);
     }
 
-    public String getUptime() {
+    public String getSince() {
         long uptimeInMillis = since.get() - System.currentTimeMillis();
         return Instant.now().minus(uptimeInMillis, ChronoUnit.MILLIS).toString();
+    }
+
+    public String getUptime() {
+        long elapsedTime = System.currentTimeMillis() - since.get();
+
+        long secondsInMilli = 1000;
+        long minutesInMilli = secondsInMilli * 60;
+        long hoursInMilli = minutesInMilli * 60;
+        long daysInMilli = hoursInMilli * 24;
+
+        long elapsedDays = elapsedTime / daysInMilli;
+        elapsedTime = elapsedTime % daysInMilli;
+
+        long elapsedHours = elapsedTime / hoursInMilli;
+        elapsedTime = elapsedTime % hoursInMilli;
+
+        long elapsedMinutes = elapsedTime / minutesInMilli;
+        elapsedTime = elapsedTime % minutesInMilli;
+
+        long elapsedSeconds = elapsedTime / secondsInMilli;
+
+        return String.format(
+                "%d days, %d hours, %d minutes, %d seconds",
+                elapsedDays,
+                elapsedHours,
+                elapsedMinutes,
+                elapsedSeconds
+        );
     }
 
     public enum ServerStatus {
