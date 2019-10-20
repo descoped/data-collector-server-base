@@ -6,6 +6,7 @@ module no.ssb.dc.application {
 
     requires org.slf4j;
     requires io.github.classgraph;
+    requires com.fasterxml.jackson.databind;
 
     requires undertow.core;
 

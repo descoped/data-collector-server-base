@@ -5,6 +5,7 @@ import no.ssb.config.DynamicConfiguration;
 import no.ssb.dc.api.services.InjectionParameters;
 import no.ssb.dc.api.services.ObjectCreator;
 import no.ssb.dc.application.controller.DispatchController;
+import no.ssb.dc.application.health.HealthApplicationMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +31,7 @@ public class UndertowApplication {
                 .addHttpListener(port, host)
                 .setHandler(dispatchController)
                 .build();
+        HealthApplicationMonitor.instance().setServerStatus(HealthApplicationMonitor.ServerStatus.INITIALIZED);
     }
 
     public static UndertowApplication initializeUndertowApplication(DynamicConfiguration configuration) {
@@ -39,8 +41,12 @@ public class UndertowApplication {
 
     public static UndertowApplication initializeUndertowApplication(DynamicConfiguration configuration, Integer port) {
         LOG.info("Initializing Data Collector server ...");
+        HealthApplicationMonitor applicationMonitor = HealthApplicationMonitor.instance();
+        applicationMonitor.setServerStatus(HealthApplicationMonitor.ServerStatus.INITIALIZING);
 
         String host = configuration.evaluateToString("http.host");
+        applicationMonitor.setHost(host);
+        applicationMonitor.setPort(port);
 
         InjectionParameters serviceInjectionParameters = new InjectionParameters();
         serviceInjectionParameters.register(DynamicConfiguration.class, configuration);
@@ -53,12 +59,15 @@ public class UndertowApplication {
             Service service = ObjectCreator.newInstance(serviceClass, serviceInjectionParameters);
             controllerInjectionParameters.register(serviceClass, service);
             services.put(serviceClass, service);
+            LOG.info("Registered service: {}", serviceClass.getName());
         }
 
         NavigableMap<String, Controller> controllers = new TreeMap<>();
         for (Class<Controller> controllerClass : ServiceProviderDiscovery.discover(Controller.class)) {
             Controller controller = ObjectCreator.newInstance(controllerClass, controllerInjectionParameters);
-            controllers.put(controller.contextPath(), controller);
+            String conextPath = controller.contextPath();
+            controllers.put(conextPath, controller);
+            LOG.info("Registered controller: {} ->  {}", conextPath, controller.getClass().getName());
         }
 
         DispatchController dispatchController = new DispatchController(
@@ -83,15 +92,18 @@ public class UndertowApplication {
     public void start() {
         server.start();
         enableAllServices();
+        HealthApplicationMonitor.instance().setServerStatus(HealthApplicationMonitor.ServerStatus.RUNNING);
         LOG.info("Started Data Collector. PID {}", ProcessHandle.current().pid());
         LOG.info("Listening on {}:{}", host, port);
     }
 
     public void stop() {
+        HealthApplicationMonitor.instance().setServerStatus(HealthApplicationMonitor.ServerStatus.SHUTTING_DOWN);
         server.stop();
         for (Service service : services.values()) {
             service.stop();
         }
+        HealthApplicationMonitor.instance().setServerStatus(HealthApplicationMonitor.ServerStatus.SHUTDOWN);
         LOG.info("Leaving.. Bye!");
     }
 

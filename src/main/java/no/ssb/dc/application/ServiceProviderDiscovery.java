@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,8 +32,13 @@ class ServiceProviderDiscovery {
         try (ScanResult scanResult = new ClassGraph().whitelistPathsNonRecursive("META-INF/services").scan()) {
             LOG.trace("serviceProviderClass: {}", serviceProviderClass.getName());
             scanResult.getResourcesWithLeafName(serviceProviderClass.getName()).forEachByteArray((Resource res, byte[] content) -> {
-                BufferedReader reader = new BufferedReader(new StringReader(new String(content)));
-                reader.lines().forEach(clazz -> serviceList.add(classForName(clazz)));
+                try {
+                    try (BufferedReader reader = new BufferedReader(new StringReader(new String(content)))) {
+                        reader.lines().forEach(clazz -> serviceList.add(classForName(clazz)));
+                    }
+                } catch (IOException e) {
+                    throw new ApplicationException(e);
+                }
             });
         }
         // TODO check for duplicate contextPaths
