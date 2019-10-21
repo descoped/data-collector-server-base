@@ -8,6 +8,8 @@ import no.ssb.dc.api.health.HealthResource;
 import no.ssb.dc.api.http.Request;
 import no.ssb.dc.api.util.JsonParser;
 import no.ssb.dc.application.Controller;
+import no.ssb.dc.application.health.HealthApplicationMonitor;
+import no.ssb.dc.application.health.HealthApplicationResource;
 
 import java.util.List;
 import java.util.Set;
@@ -41,6 +43,8 @@ public class HealthController implements Controller {
             JsonParser jsonParser = JsonParser.createJsonParser();
             ObjectNode rootNode = jsonParser.createObjectNode();
 
+            rootNode.put("state", State.checkState(healthResourceFactory).name());
+
             List<HealthResource> healthResources = healthResourceFactory.getHealthResources();
             for (HealthResource healthResource : healthResources) {
                 if (!healthResource.canRender(exchange.getQueryParameters())) {
@@ -72,5 +76,16 @@ public class HealthController implements Controller {
         }
 
         exchange.setStatusCode(400);
+    }
+
+    enum State {
+        UP,
+        DOWN;
+
+        static State checkState(HealthResourceFactory factory) {
+            HealthApplicationResource applicationResource = factory.getHealthResource(HealthApplicationResource.class);
+            boolean isRunning = HealthApplicationMonitor.ServerStatus.RUNNING == applicationResource.getMonitor().getServerStatus();
+            return isRunning ? UP : DOWN;
+        }
     }
 }
