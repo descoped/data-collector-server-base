@@ -8,6 +8,8 @@ import no.ssb.dc.application.controller.DispatchController;
 import no.ssb.dc.application.controller.HealthResourceFactory;
 import no.ssb.dc.application.health.HealthApplicationMonitor;
 import no.ssb.dc.application.health.HealthApplicationResource;
+import no.ssb.dc.application.health.HealthConfigResource;
+import no.ssb.dc.application.health.HealthContextsResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,8 +37,7 @@ public class UndertowApplication {
                 .addHttpListener(port, host)
                 .setHandler(dispatchController)
                 .build();
-
-        applicationMonitor.setServerStatus(HealthApplicationMonitor.ServerStatus.INITIALIZED);
+        this.applicationMonitor.setServerStatus(HealthApplicationMonitor.ServerStatus.INITIALIZED);
     }
 
     public static UndertowApplication initializeUndertowApplication(DynamicConfiguration configuration) {
@@ -47,6 +48,7 @@ public class UndertowApplication {
     public static UndertowApplication initializeUndertowApplication(DynamicConfiguration configuration, Integer port) {
         LOG.info("Initializing Data Collector server ...");
         HealthResourceFactory healthResourceFactory = HealthResourceFactory.create();
+        healthResourceFactory.getHealthResource(HealthConfigResource.class).setConfiguration(configuration.asMap());
         HealthApplicationMonitor applicationMonitor = healthResourceFactory.getHealthResource(HealthApplicationResource.class).getMonitor();
         applicationMonitor.setServerStatus(HealthApplicationMonitor.ServerStatus.INITIALIZING);
 
@@ -69,11 +71,13 @@ public class UndertowApplication {
             LOG.info("Registered service: {}", serviceClass.getName());
         }
 
+        HealthContextsResource healthContextsResource = healthResourceFactory.getHealthResource(HealthContextsResource.class);
         NavigableMap<String, Controller> controllers = new TreeMap<>();
         for (Class<Controller> controllerClass : ServiceProviderDiscovery.discover(Controller.class)) {
             Controller controller = ObjectCreator.newInstance(controllerClass, controllerInjectionParameters);
             String conextPath = controller.contextPath();
             controllers.put(conextPath, controller);
+            healthContextsResource.add(conextPath, controller.allowedMethods(), controllerClass);
             LOG.info("Registered controller: {} ->  {}", conextPath, controller.getClass().getName());
         }
 

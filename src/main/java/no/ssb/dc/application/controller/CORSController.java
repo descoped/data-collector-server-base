@@ -9,7 +9,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-class CORSController implements HttpHandler {
+public class CORSController implements HttpHandler {
 
     private final String corsAllowOrigin;
     private final String corsAllowHeaders;
