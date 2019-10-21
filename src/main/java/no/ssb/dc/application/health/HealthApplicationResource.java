@@ -38,6 +38,7 @@ public class HealthApplicationResource implements HealthResource {
                 monitor.getHost(),
                 monitor.getPort(),
                 monitor.getSince(),
+                monitor.getNow(),
                 monitor.getUptime());
     }
 
@@ -51,13 +52,15 @@ public class HealthApplicationResource implements HealthResource {
         @JsonProperty public final String host;
         @JsonProperty public final Integer port;
         @JsonProperty public final String since;
+        @JsonProperty public final String now;
         @JsonProperty public final String uptime;
 
-        public ServerInfo(String status, String host, Integer port, String since, String uptime) {
+        public ServerInfo(String status, String host, Integer port, String since, String now, String uptime) {
             this.status = status;
             this.host = host;
             this.port = port;
             this.since = since;
+            this.now = now;
             this.uptime = uptime;
         }
     }

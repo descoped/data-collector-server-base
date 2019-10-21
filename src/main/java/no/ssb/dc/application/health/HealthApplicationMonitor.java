@@ -1,7 +1,6 @@
 package no.ssb.dc.application.health;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -20,7 +19,7 @@ public class HealthApplicationMonitor {
     public void setServerStatus(ServerStatus status) {
         serverStatus.set(status);
         if (ServerStatus.RUNNING == status) {
-            since.set(System.currentTimeMillis());
+            since.set(Instant.now().toEpochMilli());
         }
     }
 
@@ -41,8 +40,11 @@ public class HealthApplicationMonitor {
     }
 
     public String getSince() {
-        long uptimeInMillis = since.get() - System.currentTimeMillis();
-        return Instant.now().minus(uptimeInMillis, ChronoUnit.MILLIS).toString();
+        return Instant.ofEpochMilli(since.get()).toString();
+    }
+
+    public String getNow() {
+        return Instant.ofEpochMilli(Instant.now().toEpochMilli()).toString();
     }
 
     public String getUptime() {
