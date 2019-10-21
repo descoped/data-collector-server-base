@@ -10,6 +10,7 @@ import no.ssb.dc.api.util.JsonParser;
 import no.ssb.dc.application.Controller;
 import no.ssb.dc.application.health.HealthApplicationMonitor;
 import no.ssb.dc.application.health.HealthApplicationResource;
+import no.ssb.dc.application.health.HealthResourceFactory;
 
 import java.util.List;
 import java.util.Set;
@@ -43,7 +44,7 @@ public class HealthController implements Controller {
             JsonParser jsonParser = JsonParser.createJsonParser();
             ObjectNode rootNode = jsonParser.createObjectNode();
 
-            rootNode.put("state", State.checkState(healthResourceFactory).name());
+            rootNode.put("status", State.checkState(healthResourceFactory).name());
 
             List<HealthResource> healthResources = healthResourceFactory.getHealthResources();
             for (HealthResource healthResource : healthResources) {

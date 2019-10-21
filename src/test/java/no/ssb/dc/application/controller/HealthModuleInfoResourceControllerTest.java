@@ -2,6 +2,7 @@ package no.ssb.dc.application.controller;
 
 import no.ssb.dc.api.health.HealthResource;
 import no.ssb.dc.application.health.HealthModuleInfoResource;
+import no.ssb.dc.application.health.HealthResourceFactory;
 import org.testng.annotations.Test;
 
 import java.util.List;
