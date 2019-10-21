@@ -5,11 +5,11 @@ import no.ssb.config.DynamicConfiguration;
 import no.ssb.dc.api.services.InjectionParameters;
 import no.ssb.dc.api.services.ObjectCreator;
 import no.ssb.dc.application.controller.DispatchController;
+import no.ssb.dc.application.controller.HealthResourceFactory;
 import no.ssb.dc.application.health.HealthApplicationMonitor;
 import no.ssb.dc.application.health.HealthApplicationResource;
 import no.ssb.dc.application.health.HealthConfigResource;
 import no.ssb.dc.application.health.HealthContextsResource;
-import no.ssb.dc.application.health.HealthResourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

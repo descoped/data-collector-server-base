@@ -1,4 +1,4 @@
-package no.ssb.dc.application.health;
+package no.ssb.dc.application.controller;
 
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfoList;
