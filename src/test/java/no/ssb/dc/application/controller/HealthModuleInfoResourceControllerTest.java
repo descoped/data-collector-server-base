@@ -19,7 +19,7 @@ public class HealthModuleInfoResourceControllerTest {
 
     @Test
     public void thatHealthResourcesAeDiscovered() {
-        List<HealthResource> healthResources = HealthResourceFactory.getInstance().getHealthResources();
+        List<HealthResource> healthResources = HealthResourceFactory.create().getHealthResources();
         healthResources.forEach(healthResource -> System.out.printf("%s%n", healthResource));
     }
 

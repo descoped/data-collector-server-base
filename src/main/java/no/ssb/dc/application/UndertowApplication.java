@@ -46,7 +46,8 @@ public class UndertowApplication {
 
     public static UndertowApplication initializeUndertowApplication(DynamicConfiguration configuration, Integer port) {
         LOG.info("Initializing Data Collector server ...");
-        HealthApplicationMonitor applicationMonitor = HealthResourceFactory.getInstance().getHealthResource(HealthApplicationResource.class).getMonitor();
+        HealthResourceFactory healthResourceFactory = HealthResourceFactory.create();
+        HealthApplicationMonitor applicationMonitor = healthResourceFactory.getHealthResource(HealthApplicationResource.class).getMonitor();
         applicationMonitor.setServerStatus(HealthApplicationMonitor.ServerStatus.INITIALIZING);
 
         String host = configuration.evaluateToString("http.host");
@@ -55,6 +56,7 @@ public class UndertowApplication {
 
         InjectionParameters serviceInjectionParameters = new InjectionParameters();
         serviceInjectionParameters.register(DynamicConfiguration.class, configuration);
+        serviceInjectionParameters.register(HealthResourceFactory.class, healthResourceFactory);
 
         InjectionParameters controllerInjectionParameters = new InjectionParameters();
         controllerInjectionParameters.putAll(serviceInjectionParameters);

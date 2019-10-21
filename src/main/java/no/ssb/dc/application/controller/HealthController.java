@@ -14,6 +14,12 @@ import java.util.Set;
 
 public class HealthController implements Controller {
 
+    private final HealthResourceFactory healthResourceFactory;
+
+    public HealthController(HealthResourceFactory healthResourceFactory) {
+        this.healthResourceFactory = healthResourceFactory;
+    }
+
     @Override
     public String contextPath() {
         return "/health";
@@ -35,7 +41,7 @@ public class HealthController implements Controller {
             JsonParser jsonParser = JsonParser.createJsonParser();
             ObjectNode rootNode = jsonParser.createObjectNode();
 
-            List<HealthResource> healthResources = HealthResourceFactory.getInstance().getHealthResources();
+            List<HealthResource> healthResources = healthResourceFactory.getHealthResources();
             for (HealthResource healthResource : healthResources) {
                 if (!healthResource.canRender(exchange.getQueryParameters())) {
                     continue;

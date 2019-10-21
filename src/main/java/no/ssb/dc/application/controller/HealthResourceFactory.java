@@ -26,8 +26,8 @@ public class HealthResourceFactory {
         healthResources = createHealthResources(healthResourceClasses);
     }
 
-    public static HealthResourceFactory getInstance() {
-        return HealthControllerFactorySingleton.INSTANCE;
+    public static HealthResourceFactory create() {
+        return new HealthResourceFactory();
     }
 
     public <R extends HealthResource> R getHealthResource(Class<R> healthResourceClass) {
@@ -97,10 +97,6 @@ public class HealthResourceFactory {
 
             return Integer.compare(o1Priority, o2Priority);
         }
-    }
-
-    private static class HealthControllerFactorySingleton {
-        private static final HealthResourceFactory INSTANCE = new HealthResourceFactory();
     }
 
 }
