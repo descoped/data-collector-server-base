@@ -6,6 +6,7 @@ import no.ssb.dc.api.health.HealthResource;
 import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 @HealthRenderPriority(priority = 5)
@@ -34,9 +35,10 @@ public class HealthConfigResource implements HealthResource {
     }
 
     public void setConfiguration(Map<String, String> configuration) {
+        Set<String> maskValues = Set.of("pass", "pwd", "secret", "credential", "token");
         Map<String, String> map = configMap.get();
         for (Map.Entry<String, String> entry : configuration.entrySet()) {
-            if (entry.getKey().contains("pass")) {
+            if (maskValues.stream().anyMatch(key -> entry.getKey().toLowerCase().contains(key))) {
                 map.put(entry.getKey(), "************");
             } else {
                 map.put(entry.getKey(), entry.getValue());
