@@ -10,6 +10,7 @@ import no.ssb.dc.api.util.JsonParser;
 import no.ssb.dc.application.Controller;
 import no.ssb.dc.application.health.HealthApplicationMonitor;
 import no.ssb.dc.application.health.HealthApplicationResource;
+import no.ssb.dc.application.health.HealthResourceFactory;
 
 import java.util.List;
 import java.util.Set;
