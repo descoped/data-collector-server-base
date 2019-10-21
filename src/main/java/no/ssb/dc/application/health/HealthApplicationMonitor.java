@@ -13,10 +13,6 @@ public class HealthApplicationMonitor {
     private final AtomicInteger port = new AtomicInteger();
     private final AtomicLong since = new AtomicLong(0);
 
-    public static HealthApplicationMonitor instance() {
-        return HealthApplicationStatusMonitorSingleton.INSTANCE;
-    }
-
     public ServerStatus getServerStatus() {
         return serverStatus.get();
     }
@@ -85,7 +81,4 @@ public class HealthApplicationMonitor {
         SHUTDOWN
     }
 
-    private static class HealthApplicationStatusMonitorSingleton {
-        private static final HealthApplicationMonitor INSTANCE = new HealthApplicationMonitor();
-    }
 }

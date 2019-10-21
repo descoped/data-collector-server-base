@@ -35,7 +35,7 @@ public class HealthController implements Controller {
             JsonParser jsonParser = JsonParser.createJsonParser();
             ObjectNode rootNode = jsonParser.createObjectNode();
 
-            List<HealthResource> healthResources = HealthResourceFactory.getInstances();
+            List<HealthResource> healthResources = HealthResourceFactory.getInstance().getHealthResources();
             for (HealthResource healthResource : healthResources) {
                 if (!healthResource.canRender(exchange.getQueryParameters())) {
                     continue;

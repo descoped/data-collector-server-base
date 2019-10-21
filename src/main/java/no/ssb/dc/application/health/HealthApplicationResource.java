@@ -10,6 +10,12 @@ import java.util.Map;
 @HealthRenderPriority(priority = 1)
 public class HealthApplicationResource implements HealthResource {
 
+    private final HealthApplicationMonitor monitor;
+
+    public HealthApplicationResource() {
+        monitor = new HealthApplicationMonitor();
+    }
+
     @Override
     public String name() {
         return "application";
@@ -27,13 +33,16 @@ public class HealthApplicationResource implements HealthResource {
 
     @Override
     public Object resource() {
-        HealthApplicationMonitor applicationMonitor = HealthApplicationMonitor.instance();
         return new ServerInfo(
-                applicationMonitor.getServerStatus().name(),
-                applicationMonitor.getHost(),
-                applicationMonitor.getPort(),
-                applicationMonitor.getSince(),
-                applicationMonitor.getUptime());
+                monitor.getServerStatus().name(),
+                monitor.getHost(),
+                monitor.getPort(),
+                monitor.getSince(),
+                monitor.getUptime());
+    }
+
+    public HealthApplicationMonitor getMonitor() {
+        return monitor;
     }
 
     @SuppressWarnings("WeakerAccess")

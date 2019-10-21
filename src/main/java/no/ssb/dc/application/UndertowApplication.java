@@ -5,7 +5,9 @@ import no.ssb.config.DynamicConfiguration;
 import no.ssb.dc.api.services.InjectionParameters;
 import no.ssb.dc.api.services.ObjectCreator;
 import no.ssb.dc.application.controller.DispatchController;
+import no.ssb.dc.application.controller.HealthResourceFactory;
 import no.ssb.dc.application.health.HealthApplicationMonitor;
+import no.ssb.dc.application.health.HealthApplicationResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,16 +24,19 @@ public class UndertowApplication {
     private final String host;
     private final int port;
     private final Map<Class<? extends Service>, Service> services;
+    private final HealthApplicationMonitor applicationMonitor;
 
-    private UndertowApplication(String host, int port, DispatchController dispatchController, Map<Class<? extends Service>, Service> services) {
+    private UndertowApplication(String host, int port, DispatchController dispatchController, Map<Class<? extends Service>, Service> services, HealthApplicationMonitor applicationMonitor) {
         this.host = host;
         this.port = port;
         this.services = services;
+        this.applicationMonitor = applicationMonitor;
         this.server = Undertow.builder()
                 .addHttpListener(port, host)
                 .setHandler(dispatchController)
                 .build();
-        HealthApplicationMonitor.instance().setServerStatus(HealthApplicationMonitor.ServerStatus.INITIALIZED);
+
+        applicationMonitor.setServerStatus(HealthApplicationMonitor.ServerStatus.INITIALIZED);
     }
 
     public static UndertowApplication initializeUndertowApplication(DynamicConfiguration configuration) {
@@ -41,7 +46,7 @@ public class UndertowApplication {
 
     public static UndertowApplication initializeUndertowApplication(DynamicConfiguration configuration, Integer port) {
         LOG.info("Initializing Data Collector server ...");
-        HealthApplicationMonitor applicationMonitor = HealthApplicationMonitor.instance();
+        HealthApplicationMonitor applicationMonitor = HealthResourceFactory.getInstance().getHealthResource(HealthApplicationResource.class).getMonitor();
         applicationMonitor.setServerStatus(HealthApplicationMonitor.ServerStatus.INITIALIZING);
 
         String host = configuration.evaluateToString("http.host");
@@ -78,7 +83,7 @@ public class UndertowApplication {
                 controllers
         );
 
-        return new UndertowApplication(host, port, dispatchController, services);
+        return new UndertowApplication(host, port, dispatchController, services, applicationMonitor);
     }
 
     public String getHost() {
@@ -92,18 +97,18 @@ public class UndertowApplication {
     public void start() {
         server.start();
         enableAllServices();
-        HealthApplicationMonitor.instance().setServerStatus(HealthApplicationMonitor.ServerStatus.RUNNING);
+        applicationMonitor.setServerStatus(HealthApplicationMonitor.ServerStatus.RUNNING);
         LOG.info("Started Data Collector. PID {}", ProcessHandle.current().pid());
         LOG.info("Listening on {}:{}", host, port);
     }
 
     public void stop() {
-        HealthApplicationMonitor.instance().setServerStatus(HealthApplicationMonitor.ServerStatus.SHUTTING_DOWN);
+        applicationMonitor.setServerStatus(HealthApplicationMonitor.ServerStatus.SHUTTING_DOWN);
         server.stop();
         for (Service service : services.values()) {
             service.stop();
         }
-        HealthApplicationMonitor.instance().setServerStatus(HealthApplicationMonitor.ServerStatus.SHUTDOWN);
+        applicationMonitor.setServerStatus(HealthApplicationMonitor.ServerStatus.SHUTDOWN);
         LOG.info("Leaving.. Bye!");
     }
 

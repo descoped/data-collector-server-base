@@ -5,25 +5,39 @@ import io.github.classgraph.ClassInfoList;
 import io.github.classgraph.ScanResult;
 import no.ssb.dc.api.health.HealthRenderPriority;
 import no.ssb.dc.api.health.HealthResource;
+import no.ssb.dc.api.health.HealthResourceExclude;
 import no.ssb.dc.application.ApplicationException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 
-class HealthResourceFactory {
+public class HealthResourceFactory {
 
-    private final List<HealthResource> healthResources;
+    private final TreeSet<Class<? extends HealthResource>> healthResourceClasses;
+    private final Map<Class<? extends HealthResource>, ? extends HealthResource> healthResources;
 
     private HealthResourceFactory() {
-        TreeSet<Class<? extends HealthResource>> resourceClasses = loadHealthResources();
-        healthResources = createHealthResources(resourceClasses);
+        healthResourceClasses = loadHealthResources();
+        healthResources = createHealthResources(healthResourceClasses);
     }
 
-    static List<HealthResource> getInstances() {
-        return HealthControllerFactorySingleton.INSTANCE.healthResources;
+    public static HealthResourceFactory getInstance() {
+        return HealthControllerFactorySingleton.INSTANCE;
+    }
+
+    public <R extends HealthResource> R getHealthResource(Class<R> healthResourceClass) {
+        return healthResourceClass.cast(healthResources.get(healthResourceClass));
+    }
+
+    public List<HealthResource> getHealthResources() {
+        List<HealthResource> resourceList = new ArrayList<>();
+        resourceList.addAll(healthResources.values());
+        return resourceList;
     }
 
     private TreeSet<Class<? extends HealthResource>> loadHealthResources() {
@@ -35,32 +49,38 @@ class HealthResourceFactory {
         ) {
             ClassInfoList classInfoList = scanResult.getClassesImplementing(HealthResource.class.getName());
             classInfoList.forEach(ci -> {
-                classes.add((Class<? extends HealthResource>) ci.loadClass());
+                classes.add(ci.loadClass(HealthResource.class));
             });
         }
         return classes;
     }
 
-    private List<HealthResource> createHealthResources(TreeSet<Class<? extends HealthResource>> loadedHealthResources) {
-        List<HealthResource> healthResourceArrayList= new ArrayList<>();
+    private <R extends HealthResource> R createHealthResource(Class<R> healthResourceClass) {
+        try {
+            return healthResourceClass.getDeclaredConstructor().newInstance();
+
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new ApplicationException(e);
+        }
+    }
+
+    private Map<Class<? extends HealthResource>, HealthResource> createHealthResources(TreeSet<Class<? extends HealthResource>> loadedHealthResources) {
+        Map<Class<? extends HealthResource>, HealthResource> healthResourceMap = new LinkedHashMap<>();
 
         for (Class<? extends HealthResource> resourceClass : loadedHealthResources) {
-            try {
-                HealthResource healthResource = resourceClass.getDeclaredConstructor().newInstance();
-                healthResourceArrayList.add(healthResource);
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                throw new ApplicationException(e);
+            // do not eager instantiate classes marked with excluded
+            if (resourceClass.isAnnotationPresent(HealthResourceExclude.class)) {
+                continue;
             }
+
+            HealthResource healthResource = createHealthResource(resourceClass);
+            healthResourceMap.put(resourceClass, healthResource);
         }
 
-        return healthResourceArrayList;
+        return healthResourceMap;
     }
 
-    private static class HealthControllerFactorySingleton {
-        private static final HealthResourceFactory INSTANCE = new HealthResourceFactory();
-    }
-
-    static class HealthResourcePriorityComparator implements Comparator<Class<? extends HealthResource>> {
+    private static class HealthResourcePriorityComparator implements Comparator<Class<? extends HealthResource>> {
 
         @Override
         public int compare(Class<? extends HealthResource> o1, Class<? extends HealthResource> o2) {
@@ -78,4 +98,9 @@ class HealthResourceFactory {
             return Integer.compare(o1Priority, o2Priority);
         }
     }
+
+    private static class HealthControllerFactorySingleton {
+        private static final HealthResourceFactory INSTANCE = new HealthResourceFactory();
+    }
+
 }
