@@ -10,6 +10,9 @@ module no.ssb.dc.application {
 
     requires undertow.core;
 
+    opens no.ssb.dc.application.health to com.fasterxml.jackson.databind;
+
     exports no.ssb.dc.application;
     exports no.ssb.dc.application.controller;
+    exports no.ssb.dc.application.health;
 }
