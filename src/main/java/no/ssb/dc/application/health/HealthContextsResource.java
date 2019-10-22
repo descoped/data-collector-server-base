@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@HealthRenderPriority(priority = 8)
+@HealthRenderPriority(priority = 40)
 public class HealthContextsResource implements HealthResource {
 
     private final List<ControllerContext> contexts = new ArrayList<>();

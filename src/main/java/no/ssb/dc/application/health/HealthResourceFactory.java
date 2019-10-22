@@ -8,22 +8,27 @@ import no.ssb.dc.api.health.HealthResource;
 import no.ssb.dc.api.health.HealthResourceExclude;
 import no.ssb.dc.application.ApplicationException;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.UUID;
 
 public class HealthResourceFactory {
 
-    private final TreeSet<Class<? extends HealthResource>> healthResourceClasses;
+    private final List<Class<? extends HealthResource>> healthResourceClasses;
     private final Map<Class<? extends HealthResource>, ? extends HealthResource> healthResources;
+    private final Map<UUID, HealthResource> dynamicHealthResources;
 
     private HealthResourceFactory() {
         healthResourceClasses = loadHealthResources();
         healthResources = createHealthResources(healthResourceClasses);
+        dynamicHealthResources = new LinkedHashMap<>();
     }
 
     public static HealthResourceFactory create() {
@@ -35,13 +40,17 @@ public class HealthResourceFactory {
     }
 
     public List<HealthResource> getHealthResources() {
-        List<HealthResource> resourceList = new ArrayList<>();
+        SortedSet<HealthResource> resourceList = new TreeSet<>(new HealthResourcePriorityComparator());
         resourceList.addAll(healthResources.values());
-        return resourceList;
+        resourceList.addAll(dynamicHealthResources.values());
+        if (resourceList.size() != (healthResources.size() + dynamicHealthResources.size())) {
+            throw new IllegalStateException("Something is wrong with comparator. Elements are lost!");
+        }
+        return new ArrayList<>(resourceList);
     }
 
-    private TreeSet<Class<? extends HealthResource>> loadHealthResources() {
-        TreeSet<Class<? extends HealthResource>> classes = new TreeSet<>(new HealthResourcePriorityComparator());
+    private List<Class<? extends HealthResource>> loadHealthResources() {
+        List<Class<? extends HealthResource>> classes = new ArrayList<>();
         try (ScanResult scanResult = new ClassGraph()
                 .enableClassInfo()
                 .whitelistPackages("no.ssb.dc")
@@ -64,7 +73,17 @@ public class HealthResourceFactory {
         }
     }
 
-    private Map<Class<? extends HealthResource>, HealthResource> createHealthResources(TreeSet<Class<? extends HealthResource>> loadedHealthResources) {
+    private <R extends HealthResource> R createHealthResource(UUID id, Class<R> healthResourceClass) {
+        try {
+            Constructor<R> constructor = healthResourceClass.getDeclaredConstructor(UUID.class);
+            return constructor.newInstance(id);
+
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new ApplicationException(e);
+        }
+    }
+
+    private Map<Class<? extends HealthResource>, HealthResource> createHealthResources(List<Class<? extends HealthResource>> loadedHealthResources) {
         Map<Class<? extends HealthResource>, HealthResource> healthResourceMap = new LinkedHashMap<>();
 
         for (Class<? extends HealthResource> resourceClass : loadedHealthResources) {
@@ -80,22 +99,32 @@ public class HealthResourceFactory {
         return healthResourceMap;
     }
 
-    private static class HealthResourcePriorityComparator implements Comparator<Class<? extends HealthResource>> {
+    public <R extends HealthResource> R addHealthResource(UUID id, Class<R> healthDynamicResourceClass) {
+        HealthResource healthResource = createHealthResource(id, healthDynamicResourceClass);
+        dynamicHealthResources.put(id, healthResource);
+        return (R) healthResource;
+    }
+
+    public void removeHealthResource(UUID id) {
+        dynamicHealthResources.remove(id);
+    }
+
+    private static class HealthResourcePriorityComparator implements Comparator<HealthResource> {
 
         @Override
-        public int compare(Class<? extends HealthResource> o1, Class<? extends HealthResource> o2) {
-            if (!o1.isAnnotationPresent(HealthRenderPriority.class)) {
+        public int compare(HealthResource o1, HealthResource o2) {
+            if (!o1.getClass().isAnnotationPresent(HealthRenderPriority.class)) {
                 throw new ApplicationException("HealthResource " + o1 + " must be annotated with " + HealthRenderPriority.class.getName());
             }
 
-            if (!o2.isAnnotationPresent(HealthRenderPriority.class)) {
+            if (!o2.getClass().isAnnotationPresent(HealthRenderPriority.class)) {
                 throw new ApplicationException("HealthResource " + o2 + " must be annotated with " + HealthRenderPriority.class.getName());
             }
 
-            int o1Priority = o1.getAnnotation(HealthRenderPriority.class).priority();
-            int o2Priority = o2.getAnnotation(HealthRenderPriority.class).priority();
+            int o1Priority = o1.getClass().getAnnotation(HealthRenderPriority.class).priority();
+            int o2Priority = o2.getClass().getAnnotation(HealthRenderPriority.class).priority();
 
-            return Integer.compare(o1Priority, o2Priority);
+            return o1Priority == o2Priority ? 1 : o1Priority < o2Priority ? -1 : 1;
         }
     }
 

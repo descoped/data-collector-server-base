@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-@HealthRenderPriority(priority = 20)
+@HealthRenderPriority(priority = 50)
 public class HealthThreadsResource implements HealthResource {
 
     @Override

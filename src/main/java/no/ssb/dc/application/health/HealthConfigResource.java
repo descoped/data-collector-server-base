@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
-@HealthRenderPriority(priority = 5)
+@HealthRenderPriority(priority = 30)
 public class HealthConfigResource implements HealthResource {
 
     private final AtomicReference<Map<String, String>> configMap = new AtomicReference<>(new LinkedHashMap<>());

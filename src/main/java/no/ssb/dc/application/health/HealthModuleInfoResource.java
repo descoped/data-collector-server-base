@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
 
-@HealthRenderPriority(priority = 10)
+@HealthRenderPriority(priority = 20)
 public class HealthModuleInfoResource implements HealthResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(HealthModuleInfoResource.class);
