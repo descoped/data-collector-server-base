@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @HealthRenderPriority(priority = 40)
@@ -26,6 +27,11 @@ public class HealthContextsResource implements HealthResource {
     }
 
     @Override
+    public Optional<Boolean> isUp() {
+        return Optional.empty();
+    }
+
+    @Override
     public String name() {
         return "contexts";
     }
@@ -37,7 +43,7 @@ public class HealthContextsResource implements HealthResource {
 
     @Override
     public boolean canRender(Map<String, Deque<String>> queryParams) {
-        return queryParams.containsKey("contexts");
+        return Set.of("contexts", "all").stream().anyMatch(queryParams::containsKey);
     }
 
     @Override

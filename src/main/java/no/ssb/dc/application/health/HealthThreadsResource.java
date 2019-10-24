@@ -5,14 +5,23 @@ import no.ssb.dc.api.health.HealthRenderPriority;
 import no.ssb.dc.api.health.HealthResource;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 @HealthRenderPriority(priority = 50)
 public class HealthThreadsResource implements HealthResource {
+
+    @Override
+    public Optional<Boolean> isUp() {
+        return Optional.empty();
+    }
 
     @Override
     public String name() {
@@ -26,16 +35,18 @@ public class HealthThreadsResource implements HealthResource {
 
     @Override
     public boolean canRender(Map<String, Deque<String>> queryParams) {
-        return queryParams.containsKey("threads");
+        return Set.of("threads", "all").stream().anyMatch(queryParams::containsKey);
     }
 
     @Override
     public Object resource() {
-        List<ThreadInfo> threadInfoList = new ArrayList<>();
-
         Set<Thread> threads = Thread.getAllStackTraces().keySet();
 
+        SortedMap<String, List<ThreadInfo>> threadGroups = new TreeMap<>(Comparator.comparing(String::toString));
         for (Thread thread : threads) {
+            String threadGroupName = thread.getThreadGroup().getName();
+            List<ThreadInfo> threadInfoList = threadGroups.computeIfAbsent(threadGroupName, list -> new ArrayList<>());
+
             String name = thread.getName();
             Thread.State state = thread.getState();
             int priority = thread.getPriority();
@@ -49,20 +60,25 @@ public class HealthThreadsResource implements HealthResource {
                     thread.isInterrupted(),
                     type
             ));
+
+            threadGroups.put(threadGroupName, threadInfoList);
         }
 
-        return new ThreadStatus(threadInfoList.size(), threadInfoList);
+        return new ThreadStatus(threadGroups.size(), threads.size(), threadGroups);
     }
 
     static class ThreadStatus {
+        @JsonProperty("thread-group-count") public final Integer threadGroupCount;
         @JsonProperty("thread-count") public final Integer threadCount;
-        @JsonProperty("threads") public final List<ThreadInfo> threadInfoList;
+        @JsonProperty("threads") public final Map<String, List<ThreadInfo>> threadInfoList;
 
-        public ThreadStatus(Integer threadCount, List<ThreadInfo> threadInfoList) {
+        public ThreadStatus(Integer threadGroupCount, Integer threadCount, Map<String, List<ThreadInfo>> threadInfoMap) {
+            this.threadGroupCount = threadGroupCount;
             this.threadCount = threadCount;
-            this.threadInfoList = threadInfoList;
+            this.threadInfoList = threadInfoMap;
         }
     }
+
     static class ThreadInfo {
         @JsonProperty public final Long id;
         @JsonProperty public final String name;

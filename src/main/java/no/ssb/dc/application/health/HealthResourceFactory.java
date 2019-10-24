@@ -105,6 +105,10 @@ public class HealthResourceFactory {
         return (R) healthResource;
     }
 
+    public <R extends HealthResource> R getHealthResource(UUID id) {
+        return (R) dynamicHealthResources.get(id);
+    }
+
     public void removeHealthResource(UUID id) {
         dynamicHealthResources.remove(id);
     }

@@ -6,6 +6,7 @@ import no.ssb.dc.api.health.HealthResource;
 
 import java.util.Deque;
 import java.util.Map;
+import java.util.Optional;
 
 @HealthRenderPriority(priority = 1)
 public class HealthApplicationResource implements HealthResource {
@@ -14,6 +15,11 @@ public class HealthApplicationResource implements HealthResource {
 
     public HealthApplicationResource() {
         monitor = new HealthApplicationMonitor();
+    }
+
+    @Override
+    public Optional<Boolean> isUp() {
+        return Optional.of(monitor.getServerStatus() == HealthApplicationMonitor.ServerStatus.RUNNING);
     }
 
     @Override
