@@ -99,7 +99,7 @@ public class HealthResourceFactory {
         return healthResourceMap;
     }
 
-    public <R extends HealthResource> R addHealthResource(UUID id, Class<R> healthDynamicResourceClass) {
+    public <R extends HealthResource> R createAndAdddHealthResource(UUID id, Class<R> healthDynamicResourceClass) {
         HealthResource healthResource = createHealthResource(id, healthDynamicResourceClass);
         dynamicHealthResources.put(id, healthResource);
         return (R) healthResource;
