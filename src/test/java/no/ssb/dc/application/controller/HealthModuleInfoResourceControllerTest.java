@@ -26,7 +26,7 @@ public class HealthModuleInfoResourceControllerTest {
     }
 
     @Test
-    public void thatHealthResourcesAeDiscovered() {
+    public void thatHealthResourcesAreDiscovered() {
         List<HealthResource> healthResources = HealthResourceFactory.create().getHealthResources();
         healthResources.forEach(healthResource -> System.out.printf("%s%n", healthResource));
     }
@@ -39,6 +39,11 @@ public class HealthModuleInfoResourceControllerTest {
         for (Thread thread : threads) {
             String threadGroupName = thread.getThreadGroup().getName();
             List<Thread> threadList = threadGroups.computeIfAbsent(threadGroupName, list -> new ArrayList<>());
+            List<StackTraceElement> stackTraceList = List.of(thread.getStackTrace());
+            for (StackTraceElement stackTraceElement : stackTraceList) {
+                System.out.printf("st: %s%n", stackTraceElement);
+            }
+
             threadList.add(thread);
             threadGroups.put(threadGroupName, threadList);
         }

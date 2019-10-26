@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 @HealthRenderPriority(priority = 50)
 public class HealthThreadsResource implements HealthResource {
@@ -51,6 +52,7 @@ public class HealthThreadsResource implements HealthResource {
             Thread.State state = thread.getState();
             int priority = thread.getPriority();
             String type = thread.isDaemon() ? "Daemon" : "Normal";
+            List<String> stackTraceList = List.of(thread.getStackTrace()).stream().map(StackTraceElement::toString).collect(Collectors.toList());
             threadInfoList.add(new ThreadInfo(
                     thread.getId(),
                     name,
@@ -58,8 +60,8 @@ public class HealthThreadsResource implements HealthResource {
                     priority,
                     thread.isAlive(),
                     thread.isInterrupted(),
-                    type
-            ));
+                    type,
+                    stackTraceList));
 
             threadGroups.put(threadGroupName, threadInfoList);
         }
@@ -87,8 +89,9 @@ public class HealthThreadsResource implements HealthResource {
         @JsonProperty public final Boolean alive;
         @JsonProperty public final Boolean interrupted;
         @JsonProperty public final String type;
+        @JsonProperty("stackTrace") public final List<String> stackTraceElement;
 
-        public ThreadInfo(Long id, String name, Thread.State state, Integer priority, Boolean alive, Boolean interrupted, String type) {
+        public ThreadInfo(Long id, String name, Thread.State state, Integer priority, Boolean alive, Boolean interrupted, String type, List<String> stackTraceElements) {
             this.id = id;
             this.name = name;
             this.state = state;
@@ -96,6 +99,7 @@ public class HealthThreadsResource implements HealthResource {
             this.alive = alive;
             this.interrupted = interrupted;
             this.type = type;
+            this.stackTraceElement = stackTraceElements;
         }
 
         @Override
