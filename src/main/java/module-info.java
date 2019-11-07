@@ -10,6 +10,8 @@ module no.ssb.dc.application {
 
     requires undertow.core;
 
+    requires freemarker;
+
     opens no.ssb.dc.application.health to com.fasterxml.jackson.databind;
 
     exports no.ssb.dc.application;

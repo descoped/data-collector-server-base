@@ -1,9 +1,13 @@
 package no.ssb.dc.application;
 
+import io.undertow.Handlers;
 import io.undertow.Undertow;
+import io.undertow.server.handlers.PathHandler;
+import io.undertow.util.StatusCodes;
 import no.ssb.config.DynamicConfiguration;
 import no.ssb.dc.api.services.InjectionParameters;
 import no.ssb.dc.api.services.ObjectCreator;
+import no.ssb.dc.application.controller.CORSHandler;
 import no.ssb.dc.application.controller.DispatchController;
 import no.ssb.dc.application.health.HealthApplicationMonitor;
 import no.ssb.dc.application.health.HealthApplicationResource;
@@ -14,9 +18,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class UndertowApplication {
 
@@ -28,16 +37,50 @@ public class UndertowApplication {
     private final Map<Class<? extends Service>, Service> services;
     private final HealthApplicationMonitor applicationMonitor;
 
-    private UndertowApplication(String host, int port, DispatchController dispatchController, Map<Class<? extends Service>, Service> services, HealthApplicationMonitor applicationMonitor) {
+    private String evaluateToStringOrDefault(DynamicConfiguration configuration, String key, String defaultValue) {
+        return configuration.evaluateToString(key) == null ? defaultValue : configuration.evaluateToString(key);
+    }
+
+    private int evaluateToIntOrDefault(DynamicConfiguration configuration, String key, Integer defaultValue) {
+        return configuration.evaluateToString(key) == null ? defaultValue : configuration.evaluateToInt(key);
+    }
+
+    private boolean evaluateToBooleanOrDefault(DynamicConfiguration configuration, String key, Boolean defaultValue) {
+        return configuration.evaluateToString(key) == null ? defaultValue : configuration.evaluateToBoolean(key);
+    }
+
+    private UndertowApplication(DynamicConfiguration configuration, String host, int port, DispatchController dispatchController, Map<Class<? extends Service>, Service> services, HealthApplicationMonitor applicationMonitor) {
         this.host = host;
         this.port = port;
         this.services = services;
         this.applicationMonitor = applicationMonitor;
+
+        PathHandler pathHandler = Handlers.path();
+
+        pathHandler.addPrefixPath("/", dispatchController);
+
+        CORSHandler corsHandler = configureCORSHandler(configuration, pathHandler);
+
         this.server = Undertow.builder()
                 .addHttpListener(port, host)
-                .setHandler(dispatchController)
+                .setHandler(corsHandler)
                 .build();
         this.applicationMonitor.setServerStatus(HealthApplicationMonitor.ServerStatus.INITIALIZED);
+    }
+
+    private CORSHandler configureCORSHandler(DynamicConfiguration configuration, PathHandler pathHandler) {
+        List<Pattern> corsAllowOrigin = Stream.of(evaluateToStringOrDefault(configuration, "http.cors.allow.origin", ".*")
+                .split(",")).map(Pattern::compile).collect(Collectors.toUnmodifiableList());
+        Set<String> corsAllowMethods = Set.of(evaluateToStringOrDefault(configuration, "http.cors.allow.methods", "POST,GET,PUT,DELETE,HEAD")
+                .split(","));
+        Set<String> corsAllowHeaders = Set.of(evaluateToStringOrDefault(configuration, "http.cors.allow.header", "Content-Type,Authorization")
+                .split(","));
+        boolean corsAllowCredentials = evaluateToBooleanOrDefault(configuration, "http.cors.allow.credentials", false);
+        int corsMaxAge = evaluateToIntOrDefault(configuration, "http.cors.allow.max-age", 900);
+
+        return new CORSHandler(pathHandler, pathHandler, corsAllowOrigin,
+                corsAllowCredentials, StatusCodes.NO_CONTENT, corsMaxAge, corsAllowMethods, corsAllowHeaders
+        );
     }
 
     public static UndertowApplication initializeUndertowApplication(DynamicConfiguration configuration) {
@@ -52,7 +95,8 @@ public class UndertowApplication {
         HealthApplicationMonitor applicationMonitor = healthResourceFactory.getHealthResource(HealthApplicationResource.class).getMonitor();
         applicationMonitor.setServerStatus(HealthApplicationMonitor.ServerStatus.INITIALIZING);
 
-        String host = configuration.evaluateToString("http.host");
+        String host = configuration.evaluateToString("http.host") == null ? "localhost" : configuration.evaluateToString("http.host");
+
         applicationMonitor.setHost(host);
         applicationMonitor.setPort(port);
 
@@ -89,7 +133,7 @@ public class UndertowApplication {
                 controllers
         );
 
-        return new UndertowApplication(host, port, dispatchController, services, applicationMonitor);
+        return new UndertowApplication(configuration, host, port, dispatchController, services, applicationMonitor);
     }
 
     public String getHost() {

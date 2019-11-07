@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import no.ssb.dc.api.health.HealthRenderPriority;
 import no.ssb.dc.api.health.HealthResource;
 import no.ssb.dc.api.http.Request;
-import no.ssb.dc.application.controller.CORSController;
+import no.ssb.dc.application.controller.CORSHandler;
 import no.ssb.dc.application.controller.DispatchController;
 import no.ssb.dc.application.controller.PingController;
 
@@ -21,7 +21,7 @@ public class HealthContextsResource implements HealthResource {
     private final List<ControllerContext> contexts = new ArrayList<>();
 
     public HealthContextsResource() {
-        add("", Set.of(Request.Method.OPTIONS), CORSController.class);
+        add("", Set.of(Request.Method.OPTIONS), CORSHandler.class);
         add("", Set.of(Request.Method.values()), DispatchController.class);
         add("/ping", Set.of(Request.Method.GET), PingController.class);
     }

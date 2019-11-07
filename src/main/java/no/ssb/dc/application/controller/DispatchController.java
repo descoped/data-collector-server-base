@@ -28,26 +28,26 @@ public class DispatchController implements HttpHandler {
     public void handleRequest(HttpServerExchange exchange) throws Exception {
         String requestPath = exchange.getRequestPath();
 
-        // NOTE: CORSController cannot be shared across requests or threads
-        CORSController cors = new CORSController(corsAllowOrigin, corsAllowHeaders, corsAllowOriginTest, undertowPort);
-
-        cors.handleRequest(exchange);
-
-        if (requestPath.trim().length() <= 1 && !cors.isOptionsRequest()) {
-            exchange.setStatusCode(404);
-            return;
-        }
-
-        if (cors.isBadRequest()) {
-            return;
-        }
-
-        if (cors.isOptionsRequest()) {
-            cors.doOptions();
-            return;
-        }
-
-        cors.handleValidRequest();
+//        // NOTE: CORSController cannot be shared across requests or threads
+//        CORSController cors = new CORSController(corsAllowOrigin, corsAllowHeaders, corsAllowOriginTest, undertowPort);
+//
+//        cors.handleRequest(exchange);
+//
+//        if (requestPath.trim().length() <= 1 && !cors.isOptionsRequest()) {
+//            exchange.setStatusCode(404);
+//            return;
+//        }
+//
+//        if (cors.isBadRequest()) {
+//            return;
+//        }
+//
+//        if (cors.isOptionsRequest()) {
+//            cors.doOptions();
+//            return;
+//        }
+//
+//        cors.handleValidRequest();
 
         if (requestPath.startsWith("/ping")) {
             new PingController().handleRequest(exchange);
