@@ -125,13 +125,7 @@ public class UndertowApplication {
             LOG.info("Registered controller: {} ->  {}", conextPath, controller.getClass().getName());
         }
 
-        DispatchController dispatchController = new DispatchController(
-                configuration.evaluateToString("http.cors.allow.origin"),
-                configuration.evaluateToString("http.cors.allow.header"),
-                configuration.evaluateToBoolean("http.cors.allow.origin.test"),
-                port,
-                controllers
-        );
+        DispatchController dispatchController = new DispatchController(controllers);
 
         return new UndertowApplication(configuration, host, port, dispatchController, services, applicationMonitor);
     }
