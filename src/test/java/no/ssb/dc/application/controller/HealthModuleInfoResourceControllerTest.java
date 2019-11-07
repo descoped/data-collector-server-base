@@ -3,6 +3,8 @@ package no.ssb.dc.application.controller;
 import no.ssb.dc.api.health.HealthResource;
 import no.ssb.dc.application.health.HealthModuleInfoResource;
 import no.ssb.dc.application.health.HealthResourceFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
@@ -17,6 +19,8 @@ import java.util.stream.Collectors;
 import static org.testng.Assert.assertEquals;
 
 public class HealthModuleInfoResourceControllerTest {
+
+    private static final Logger LOG = LoggerFactory.getLogger(HealthModuleInfoResourceControllerTest.class);
 
     @Test
     public void thatModuleListIsEmptyUntilModuleSystemCanBeInitializedInTests() {
@@ -37,6 +41,10 @@ public class HealthModuleInfoResourceControllerTest {
 
         SortedMap<String, List<Thread>> threadGroups = new TreeMap<>(Comparator.comparing(String::toString));
         for (Thread thread : threads) {
+            if (thread.getThreadGroup() == null) {
+                LOG.warn("ThreadGroup is NULL for thread: {}", thread);
+                continue;
+            }
             String threadGroupName = thread.getThreadGroup().getName();
             List<Thread> threadList = threadGroups.computeIfAbsent(threadGroupName, list -> new ArrayList<>());
             List<StackTraceElement> stackTraceList = List.of(thread.getStackTrace());
