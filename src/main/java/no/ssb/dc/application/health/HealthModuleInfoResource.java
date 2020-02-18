@@ -101,6 +101,9 @@ public class HealthModuleInfoResource implements HealthResource {
     }
 
     private boolean isModuleNameEqualToResourceModuleRefName(ModuleDescriptor moduleDescriptor, Resource resource) {
+        if (resource.getModuleRef() == null) {
+            return false;
+        }
         return moduleDescriptor.name().equals(resource.getModuleRef().getName());
     }
 
