@@ -17,5 +17,6 @@ module no.ssb.dc.application {
     exports no.ssb.dc.application.spi;
     exports no.ssb.dc.application.server;
     exports no.ssb.dc.application.controller;
+    exports no.ssb.dc.application.engine;
     exports no.ssb.dc.application.health;
 }
