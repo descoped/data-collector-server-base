@@ -1,4 +1,4 @@
-package no.ssb.dc.application;
+package no.ssb.dc.application.server;
 
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.Resource;

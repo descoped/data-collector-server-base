@@ -1,4 +1,4 @@
-package no.ssb.dc.application;
+package no.ssb.dc.application.server;
 
 public class ApplicationException extends RuntimeException {
 

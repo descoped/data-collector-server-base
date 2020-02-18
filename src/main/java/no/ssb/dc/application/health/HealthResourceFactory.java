@@ -6,7 +6,7 @@ import io.github.classgraph.ScanResult;
 import no.ssb.dc.api.health.HealthRenderPriority;
 import no.ssb.dc.api.health.HealthResource;
 import no.ssb.dc.api.health.HealthResourceExclude;
-import no.ssb.dc.application.ApplicationException;
+import no.ssb.dc.application.server.ApplicationException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
