@@ -1,5 +1,7 @@
 package no.ssb.dc.application.server;
 
+import no.ssb.dc.application.spi.Controller;
+import no.ssb.dc.application.spi.Service;
 import org.junit.jupiter.api.Test;
 
 public class ServiceProviderDiscoveryTest {

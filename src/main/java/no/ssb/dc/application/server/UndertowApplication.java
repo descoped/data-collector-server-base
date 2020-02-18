@@ -14,6 +14,8 @@ import no.ssb.dc.application.health.HealthApplicationResource;
 import no.ssb.dc.application.health.HealthConfigResource;
 import no.ssb.dc.application.health.HealthContextsResource;
 import no.ssb.dc.application.health.HealthResourceFactory;
+import no.ssb.dc.application.spi.Controller;
+import no.ssb.dc.application.spi.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

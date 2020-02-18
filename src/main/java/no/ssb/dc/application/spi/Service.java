@@ -1,4 +1,4 @@
-package no.ssb.dc.application.server;
+package no.ssb.dc.application.spi;
 
 public interface Service {
 

@@ -1,4 +1,4 @@
-package no.ssb.dc.application.server;
+package no.ssb.dc.application.spi;
 
 import io.undertow.server.HttpHandler;
 import no.ssb.dc.api.http.Request;

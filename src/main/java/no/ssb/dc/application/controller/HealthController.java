@@ -9,7 +9,7 @@ import no.ssb.dc.api.http.HttpStatusCode;
 import no.ssb.dc.api.http.Request;
 import no.ssb.dc.api.util.JsonParser;
 import no.ssb.dc.application.health.HealthResourceFactory;
-import no.ssb.dc.application.server.Controller;
+import no.ssb.dc.application.spi.Controller;
 
 import java.util.List;
 import java.util.Set;
