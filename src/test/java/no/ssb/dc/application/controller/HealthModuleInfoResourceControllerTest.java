@@ -3,9 +3,9 @@ package no.ssb.dc.application.controller;
 import no.ssb.dc.api.health.HealthResource;
 import no.ssb.dc.application.health.HealthModuleInfoResource;
 import no.ssb.dc.application.health.HealthResourceFactory;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.annotations.Test;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -16,7 +16,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import static org.testng.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class HealthModuleInfoResourceControllerTest {
 
@@ -25,7 +25,7 @@ public class HealthModuleInfoResourceControllerTest {
     @Test
     public void thatModuleListIsEmptyUntilModuleSystemCanBeInitializedInTests() {
         HealthModuleInfoResource healthModuleInfoResource = new HealthModuleInfoResource();
-        assertEquals(((List) healthModuleInfoResource.resource()).size(), 0);
+        assertEquals(((List) healthModuleInfoResource.resource()).size(), 5);
         System.out.printf("%s -> %s%n", healthModuleInfoResource.name(), healthModuleInfoResource.resource());
     }
 
@@ -59,6 +59,5 @@ public class HealthModuleInfoResourceControllerTest {
         for (Map.Entry<String, List<Thread>> threadEntry : threadGroups.entrySet()) {
             System.out.printf("%s -> %s%n", threadEntry.getKey(), threadEntry.getValue().stream().map(Thread::getName).collect(Collectors.joining(", ")));
         }
-
     }
 }

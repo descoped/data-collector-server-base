@@ -1,6 +1,6 @@
 package no.ssb.dc.application;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 public class ServiceProviderDiscoveryTest {
 
