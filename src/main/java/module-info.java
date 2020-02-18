@@ -13,6 +13,7 @@ module no.ssb.dc.application {
     requires freemarker;
 
     opens no.ssb.dc.application.health to com.fasterxml.jackson.databind;
+    opens no.ssb.dc.application.engine; // open to unnamed module freemarker
 
     exports no.ssb.dc.application.spi;
     exports no.ssb.dc.application.server;
