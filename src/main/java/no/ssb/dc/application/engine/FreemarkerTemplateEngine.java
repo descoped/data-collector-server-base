@@ -31,6 +31,8 @@ public class FreemarkerTemplateEngine {
         Configuration config = new Configuration(Configuration.VERSION_2_3_29);
         config.setClassLoaderForTemplateLoading(tccl(), basePackagePath);
         config.setDefaultEncoding("UTF-8");
+        //config.setOutputFormat(XMLOutputFormat.INSTANCE);
+        //config.setWhitespaceStripping(true);
         config.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
         config.setLogTemplateExceptions(false);
         config.setWrapUncheckedExceptions(true);
