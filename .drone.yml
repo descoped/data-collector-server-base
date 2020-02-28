@@ -18,6 +18,15 @@ steps:
     settings:
       servers:
         from_secret: maven_servers
+      profiles:
+        - id: ssb-bip
+          repositories:
+            - id: ssb-bip-snapshots
+              url: https://nexus.prod-bip-ci.ssb.no/repository/maven-snapshots/
+              layout: default
+            - id: ssb-bip-releases
+              url: https://nexus.prod-bip-ci.ssb.no/repository/maven-releases/
+              layout: default
 
   - name: build
     image: maven:3-jdk-11
@@ -52,7 +61,7 @@ steps:
         - master
         - develop
     depends_on:
-      - build
+      - test
 
   - name: sonarqube
     image: maven:3-jdk-11
@@ -63,7 +72,7 @@ steps:
       SONAR_PROJECTKEY:
         from_secret: sonar_token
     depends_on:
-      - build
+      - test
 
   # Rebuild cache if it has changed with this build
   - name: rebuild-cache
