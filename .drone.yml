@@ -86,7 +86,7 @@ steps:
       mount:
         - .m2/repository
     depends_on:
-      - sonarqube
+      - publish-maven
 
   # OPTIONAL: Flush the cache of old cache items (older than 14 days)
   - name: flush-cache
@@ -99,7 +99,7 @@ steps:
       flush: true
       flush_age: 14
     depends_on:
-      - sonarqube
+      - publish-maven
 
 #  - name: codecov-manual
 #    image: alpine:3
