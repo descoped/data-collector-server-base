@@ -4,9 +4,7 @@ import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.exporter.common.TextFormat;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.Headers;
-import no.ssb.dc.api.health.HealthResource;
 import no.ssb.dc.api.http.Request;
-import no.ssb.dc.application.health.HealthResourceFactory;
 import no.ssb.dc.application.spi.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,18 +14,17 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
+// https://github.com/prometheus/client_java#counter
+// https://github.com/prometheus/client_java/blob/master/simpleclient_httpserver/src/main/java/io/prometheus/client/exporter/HTTPServer.java
 public class MetricsController implements Controller {
 
     private static final Logger LOG = LoggerFactory.getLogger(MetricsController.class);
     private final static String HEALTHY_RESPONSE = "Exporter is Healthy.";
-    private final HealthResourceFactory healthResourceFactory;
     private final CollectorRegistry collectorRegistry;
 
-    public MetricsController(HealthResourceFactory healthResourceFactory) {
-        this.healthResourceFactory = healthResourceFactory;
+    public MetricsController() {
         collectorRegistry = CollectorRegistry.defaultRegistry;
     }
 
@@ -50,7 +47,7 @@ public class MetricsController implements Controller {
 
         if ("get".equalsIgnoreCase(exchange.getRequestMethod().toString())) {
             if (exchange.getRequestPath().startsWith("/metrics")) {
-                dealWithHealthInfo(exchange);
+                dealWithMetrics(exchange);
                 return;
             }
         }
@@ -58,32 +55,25 @@ public class MetricsController implements Controller {
         exchange.setStatusCode(400);
     }
 
-    private void dealWithHealthInfo(HttpServerExchange exchange) {
-        List<HealthResource> healthResources = healthResourceFactory.getHealthResources();
-        for (HealthResource healthResource : healthResources) {
-            LOG.trace("{}", healthResource.toString());
-        }
-
-        StringWriter sw = new StringWriter();
-
-        if (exchange.getRequestPath().endsWith("/-/healthy")) {
-            sw.write(HEALTHY_RESPONSE);
-        } else {
-            try {
+    private void dealWithMetrics(HttpServerExchange exchange) {
+        try (StringWriter sw = new StringWriter()) {
+            if (exchange.getRequestPath().endsWith("/-/healthy")) {
+                sw.write(HEALTHY_RESPONSE);
+            } else {
                 String query = exchange.getQueryString();
                 TextFormat.write004(sw, collectorRegistry.filteredMetricFamilySamples(parseQuery(query)));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             }
-        }
 
-        exchange.setStatusCode(200);
-        exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
-        exchange.getResponseSender().send(sw.toString());
+            exchange.setStatusCode(200);
+            exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
+            exchange.getResponseSender().send(sw.toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected static Set<String> parseQuery(String query) throws UnsupportedEncodingException {
-        Set<String> names = new HashSet<String>();
+        Set<String> names = new HashSet<>();
         if (query != null) {
             String[] pairs = query.split("&");
             for (String pair : pairs) {
