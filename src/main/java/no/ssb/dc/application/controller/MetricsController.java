@@ -65,7 +65,7 @@ public class MetricsController implements Controller {
             }
 
             exchange.setStatusCode(200);
-            exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
+            exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, TextFormat.CONTENT_TYPE_004);
             exchange.getResponseSender().send(sw.toString());
         } catch (IOException e) {
             throw new RuntimeException(e);
