@@ -9,6 +9,8 @@ module no.ssb.dc.application {
     requires com.fasterxml.jackson.databind;
 
     requires undertow.core;
+    requires simpleclient.common;
+    requires simpleclient;
 
     requires freemarker;
 

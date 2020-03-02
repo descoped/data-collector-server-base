@@ -30,7 +30,7 @@ public class CORSHandlerTest {
     /**
      * Find a free port for the undertow server.
      */
-    private static int findFree() {
+    static int findFree() {
         int port = 0;
         while (port == 0) {
             ServerSocket socket = null;
