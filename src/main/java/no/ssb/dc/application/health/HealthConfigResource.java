@@ -43,7 +43,7 @@ public class HealthConfigResource implements HealthResource {
     }
 
     public void setConfiguration(Map<String, String> configuration) {
-        Set<String> maskValues = Set.of("pass", "pwd", "secret", "credential", "token");
+        Set<String> maskValues = Set.of("pass", "pwd", "secret", "credential", "token", "encryption");
         Map<String, String> map = new LinkedHashMap<>();
         for (Map.Entry<String, String> entry : configuration.entrySet()) {
             if (maskValues.stream().anyMatch(key -> entry.getKey().toLowerCase().contains(key))) {
