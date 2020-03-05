@@ -1,6 +1,9 @@
 package no.ssb.dc.application.controller;
 
 import io.prometheus.client.Counter;
+import io.prometheus.client.Gauge;
+import io.prometheus.client.Histogram;
+import io.prometheus.client.Summary;
 import no.ssb.config.DynamicConfiguration;
 import no.ssb.config.StoreBasedDynamicConfiguration;
 import no.ssb.dc.application.server.UndertowApplication;
@@ -16,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
+import java.time.Instant;
 
 import static no.ssb.dc.api.util.CommonUtils.captureStackTrace;
 import static no.ssb.dc.application.controller.CORSHandlerTest.findFree;
@@ -30,7 +34,9 @@ public class MetricsControllerTest {
 
     @BeforeAll
     static void beforeAll() {
-        DynamicConfiguration configuration = new StoreBasedDynamicConfiguration.Builder().build();
+        DynamicConfiguration configuration = new StoreBasedDynamicConfiguration.Builder()
+                .values("prometheus.defaultExports.disabled", "true")
+                .build();
         server = UndertowApplication.initializeUndertowApplication(configuration, findFree());
         server.start();
     }
@@ -77,14 +83,47 @@ public class MetricsControllerTest {
     }
 
     @Test
-    void thatMetricsAreReported() throws IOException {
-        final Counter requests = Counter.build().name("requests_total").help("Total requests.").register();
-        requests.inc();
-        requests.inc();
-
+    void thatMetricsAreReported() throws IOException, InterruptedException {
         HttpResponse response = GET("/metrics");
         assertEquals(200, response.statusCode);
         LOG.trace("body:\n{}", response.body);
     }
 
+    @Test
+    void experiment() throws InterruptedException {
+       Counter requests = Counter.build("requests_total", "Total requests.").namespace("ns").subsystem("foo").register();
+        requests.inc();
+
+        Gauge gauge = Gauge.build("currentTime", "Current Time").namespace("ns").subsystem("foo").register();
+        gauge.set(Instant.now().toEpochMilli());
+
+
+        {
+            Histogram histogram = Histogram.build("histogram_KEY", "Histogram").register();
+            {
+                Histogram.Timer timer = histogram.startTimer();
+                Thread.sleep(250);
+                histogram.observe(1500);
+                timer.observeDuration();
+            }
+            Thread.sleep(500);
+
+            {
+                Histogram.Timer timer = histogram.startTimer();
+                Thread.sleep(220);
+                histogram.observe(1200);
+                timer.observeDuration();
+            }
+        }
+
+        {
+            Summary summary = Summary.build("someSummary", "Some Summary").register();
+            Summary.Timer timer = summary.startTimer();
+            Thread.sleep(250);
+            summary.observe(1500);
+            timer.observeDuration();
+        }
+
+
+    }
 }

@@ -1,5 +1,6 @@
 package no.ssb.dc.application.server;
 
+import io.prometheus.client.hotspot.DefaultExports;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.server.handlers.PathHandler;
@@ -14,6 +15,7 @@ import no.ssb.dc.application.health.HealthApplicationResource;
 import no.ssb.dc.application.health.HealthConfigResource;
 import no.ssb.dc.application.health.HealthContextsResource;
 import no.ssb.dc.application.health.HealthResourceFactory;
+import no.ssb.dc.application.metrics.MetricsResourceFactory;
 import no.ssb.dc.application.spi.Controller;
 import no.ssb.dc.application.spi.Service;
 import org.slf4j.Logger;
@@ -91,7 +93,12 @@ public class UndertowApplication {
     }
 
     public static UndertowApplication initializeUndertowApplication(DynamicConfiguration configuration, Integer port) {
+        if (!configuration.evaluateToBoolean("prometheus.defaultExports.disabled")) {
+            DefaultExports.initialize();
+        }
         LOG.info("Initializing Data Collector server ...");
+        MetricsResourceFactory metricsResourceFactory = MetricsResourceFactory.create();
+
         HealthResourceFactory healthResourceFactory = HealthResourceFactory.create();
         healthResourceFactory.getHealthResource(HealthConfigResource.class).setConfiguration(configuration.asMap());
         HealthApplicationMonitor applicationMonitor = healthResourceFactory.getHealthResource(HealthApplicationResource.class).getMonitor();
@@ -104,6 +111,7 @@ public class UndertowApplication {
 
         InjectionParameters serviceInjectionParameters = new InjectionParameters();
         serviceInjectionParameters.register(DynamicConfiguration.class, configuration);
+        serviceInjectionParameters.register(MetricsResourceFactory.class, metricsResourceFactory);
         serviceInjectionParameters.register(HealthResourceFactory.class, healthResourceFactory);
 
         InjectionParameters controllerInjectionParameters = new InjectionParameters();
@@ -121,10 +129,10 @@ public class UndertowApplication {
         NavigableMap<String, Controller> controllers = new TreeMap<>();
         for (Class<Controller> controllerClass : ServiceProviderDiscovery.discover(Controller.class)) {
             Controller controller = ObjectCreator.newInstance(controllerClass, controllerInjectionParameters);
-            String conextPath = controller.contextPath();
-            controllers.put(conextPath, controller);
-            healthContextsResource.add(conextPath, controller.allowedMethods(), controllerClass);
-            LOG.info("Registered controller: {} ->  {}", conextPath, controller.getClass().getName());
+            String contextPath = controller.contextPath();
+            controllers.put(contextPath, controller);
+            healthContextsResource.add(contextPath, controller.allowedMethods(), controllerClass);
+            LOG.info("Registered controller: {} ->  {}", contextPath, controller.getClass().getName());
         }
 
         DispatchController dispatchController = new DispatchController(controllers);
