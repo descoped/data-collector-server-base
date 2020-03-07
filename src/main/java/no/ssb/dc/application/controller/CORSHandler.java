@@ -104,7 +104,7 @@ public class CORSHandler implements HttpHandler {
                 next.handleRequest(exchange);
             }
         } catch (OutOfScopeException oose) {
-            log.debug("Request out of scope: {}", oose.getMessage());
+            log.trace("Request out of scope: {}", oose.getMessage());
             fail.handleRequest(exchange);
         }
     }
