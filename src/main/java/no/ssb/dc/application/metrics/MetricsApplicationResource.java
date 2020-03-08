@@ -7,8 +7,8 @@ import java.time.Instant;
 
 public class MetricsApplicationResource implements MetricsResource {
 
-    private static final Gauge since = Gauge.build().subsystem("application").name("since").help("Application started").register();
-    private static final Gauge uptime = Gauge.build().subsystem("application").name("uptime").help("Application uptime").register();
+    private static final Gauge since = Gauge.build().namespace("dc").subsystem("application").name("since").help("Application started").register();
+    private static final Gauge uptime = Gauge.build().namespace("dc").subsystem("application").name("uptime").help("Application uptime").register();
 
     public MetricsApplicationResource() {
         since.set(Instant.now().toEpochMilli());
