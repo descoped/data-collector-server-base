@@ -97,7 +97,7 @@ public class CORSHandler implements HttpHandler {
                 log.debug("Preflight check: {}", exchange);
                 handlePreflight(exchange);
             } else {
-                log.debug("Simple check: {}", exchange);
+                //log.debug("Simple check: {}", exchange);
                 String origin = checkOrigin(exchange);
                 addAllowOrigin(exchange, origin);
                 addExposeHeaders(exchange);
