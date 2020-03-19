@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URL;
 import java.time.Instant;
+import java.util.Optional;
 
 import static no.ssb.dc.api.util.CommonUtils.captureStackTrace;
 import static no.ssb.dc.application.controller.CORSHandlerTest.findFree;
@@ -65,16 +66,6 @@ public class MetricsControllerTest {
         }
     }
 
-    static class HttpResponse {
-        public final int statusCode;
-        public final String body;
-
-        public HttpResponse(int statusCode, String body) {
-            this.statusCode = statusCode;
-            this.body = body;
-        }
-    }
-
     @Test
     void thatMetricsAreHealth() {
         HttpResponse response = GET("/metrics/-/healthy");
@@ -91,12 +82,20 @@ public class MetricsControllerTest {
 
     @Test
     void experiment() throws InterruptedException {
-       Counter requests = Counter.build("requests_total", "Total requests.").namespace("ns").subsystem("foo").register();
+        Counter requests = Counter.build("requests_total", "Total requests").namespace("ns").subsystem("foo").register();
+        requests.inc();
+
+        Counter request_count = Counter.build("requests_count", "Count requests").namespace("ns").subsystem("foo").labelNames("url").register();
         requests.inc();
 
         Gauge gauge = Gauge.build("currentTime", "Current Time").namespace("ns").subsystem("foo").register();
         gauge.set(Instant.now().toEpochMilli());
 
+        {
+            // null value causes NPE
+            Optional<String> emptyString = Optional.empty();
+            request_count.labels(emptyString.orElse("")).inc();
+        }
 
         {
             Histogram histogram = Histogram.build("histogram_KEY", "Histogram").register();
@@ -125,5 +124,15 @@ public class MetricsControllerTest {
         }
 
 
+    }
+
+    static class HttpResponse {
+        public final int statusCode;
+        public final String body;
+
+        public HttpResponse(int statusCode, String body) {
+            this.statusCode = statusCode;
+            this.body = body;
+        }
     }
 }
