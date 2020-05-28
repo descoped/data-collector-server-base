@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.Headers;
 import no.ssb.dc.api.health.HealthResource;
-import no.ssb.dc.api.http.HttpStatusCode;
+import no.ssb.dc.api.http.HttpStatus;
 import no.ssb.dc.api.http.Request;
 import no.ssb.dc.api.util.JsonParser;
 import no.ssb.dc.application.health.HealthResourceFactory;
@@ -98,7 +98,7 @@ public class HealthController implements Controller {
      */
 
     private void checkIfServiceIsAlive(HttpServerExchange exchange) {
-        exchange.setStatusCode(HttpStatusCode.HTTP_OK.statusCode());
+        exchange.setStatusCode(HttpStatus.HTTP_OK.code());
     }
 
     private void checkIfServiceIsReady(HttpServerExchange exchange) {
@@ -107,7 +107,7 @@ public class HealthController implements Controller {
         // only resources that should take part in service readiness must be advised
         Predicate<HealthResource> resourceSupportsServiceUp = healthResource -> healthResource.isUp().orElse(true);
         boolean isHealthy = healthResourcesUp.stream().allMatch(resourceSupportsServiceUp);
-        int statusCode = isHealthy ? HttpStatusCode.HTTP_OK.statusCode() : HttpStatusCode.HTTP_UNAVAILABLE.statusCode();
+        int statusCode = isHealthy ? HttpStatus.HTTP_OK.code() : HttpStatus.HTTP_UNAVAILABLE.code();
         exchange.setStatusCode(statusCode);
     }
 
