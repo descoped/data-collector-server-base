@@ -122,6 +122,10 @@ public class UndertowApplication {
             Service service = ObjectCreator.newInstance(serviceClass, serviceInjectionParameters);
             controllerInjectionParameters.register(serviceClass, service);
             services.put(serviceClass, service);
+            // TODO this is weak and requires Service Priority to guarantee injection ordering. Was added to let RawdataFileSystemService to get access to WorkerServer
+            // TODO refactor and move exporter to WorkerService for direct access
+            serviceInjectionParameters.register(serviceClass, service);
+            // END TODO
             LOG.info("Registered service: {}", serviceClass.getName());
         }
 
