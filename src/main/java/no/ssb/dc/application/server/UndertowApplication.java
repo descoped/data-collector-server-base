@@ -143,9 +143,11 @@ public class UndertowApplication {
         Map<Class<? extends Service>, Service> services = new LinkedHashMap<>();
         for (Class<Service> serviceClass : ServiceProviderDiscovery.discover(Service.class)) {
             Service service = ObjectCreator.newInstance(serviceClass, serviceInjectionParameters);
-            controllerInjectionParameters.register(serviceClass, service);
-            services.put(serviceClass, service);
-            LOG.info("Registered service: {}", serviceClass.getName());
+            if (service.isEnabled()) {
+                controllerInjectionParameters.register(serviceClass, service);
+                services.put(serviceClass, service);
+                LOG.info("Registered service: {}", serviceClass.getName());
+            }
         }
 
         // scan and register Controllers and copy all services to controller injection params
