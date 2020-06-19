@@ -16,6 +16,7 @@ import no.ssb.dc.application.health.HealthConfigResource;
 import no.ssb.dc.application.health.HealthContextsResource;
 import no.ssb.dc.application.health.HealthResourceFactory;
 import no.ssb.dc.application.metrics.MetricsResourceFactory;
+import no.ssb.dc.application.spi.Component;
 import no.ssb.dc.application.spi.Controller;
 import no.ssb.dc.application.spi.Service;
 import org.slf4j.Logger;
@@ -38,6 +39,7 @@ public class UndertowApplication {
     private final Undertow server;
     private final String host;
     private final int port;
+    private final Map<Class<? extends Component>, Component> components;
     private final Map<Class<? extends Service>, Service> services;
     private final HealthApplicationMonitor applicationMonitor;
 
@@ -53,9 +55,16 @@ public class UndertowApplication {
         return configuration.evaluateToString(key) == null ? defaultValue : configuration.evaluateToBoolean(key);
     }
 
-    private UndertowApplication(DynamicConfiguration configuration, String host, int port, DispatchController dispatchController, Map<Class<? extends Service>, Service> services, HealthApplicationMonitor applicationMonitor) {
+    private UndertowApplication(DynamicConfiguration configuration,
+                                String host,
+                                int port,
+                                DispatchController dispatchController,
+                                Map<Class<? extends Component>, Component> components,
+                                Map<Class<? extends Service>, Service> services,
+                                HealthApplicationMonitor applicationMonitor) {
         this.host = host;
         this.port = port;
+        this.components = components;
         this.services = services;
         this.applicationMonitor = applicationMonitor;
 
@@ -109,8 +118,22 @@ public class UndertowApplication {
         applicationMonitor.setHost(host);
         applicationMonitor.setPort(port);
 
+        // scan and register Components
+        InjectionParameters componentInjectionParameters = new InjectionParameters();
+        componentInjectionParameters.register(DynamicConfiguration.class, configuration);
+        Map<Class<? extends Component>, Component> components = new LinkedHashMap<>();
+        for (Class<Component> componentClass : ServiceProviderDiscovery.discover(Component.class)) {
+            Component component = ObjectCreator.newInstance(componentClass, componentInjectionParameters);
+            component.initialize();
+            componentInjectionParameters.register(componentClass, component);
+            components.put(componentClass, component);
+            LOG.info("Registered component: {}", componentClass.getName());
+        }
+
+        // scan and register Services and copy all components to service injection params
         InjectionParameters serviceInjectionParameters = new InjectionParameters();
-        serviceInjectionParameters.register(DynamicConfiguration.class, configuration);
+        serviceInjectionParameters.putAll(componentInjectionParameters);
+        //serviceInjectionParameters.register(DynamicConfiguration.class, configuration);
         serviceInjectionParameters.register(MetricsResourceFactory.class, metricsResourceFactory);
         serviceInjectionParameters.register(HealthResourceFactory.class, healthResourceFactory);
 
@@ -122,13 +145,10 @@ public class UndertowApplication {
             Service service = ObjectCreator.newInstance(serviceClass, serviceInjectionParameters);
             controllerInjectionParameters.register(serviceClass, service);
             services.put(serviceClass, service);
-            // TODO this is weak and requires Service Priority to guarantee injection ordering. Was added to let RawdataFileSystemService to get access to WorkerServer
-            // TODO refactor and move exporter to WorkerService for direct access
-            serviceInjectionParameters.register(serviceClass, service);
-            // END TODO
             LOG.info("Registered service: {}", serviceClass.getName());
         }
 
+        // scan and register Controllers and copy all services to controller injection params
         HealthContextsResource healthContextsResource = healthResourceFactory.getHealthResource(HealthContextsResource.class);
         NavigableMap<String, Controller> controllers = new TreeMap<>();
         for (Class<Controller> controllerClass : ServiceProviderDiscovery.discover(Controller.class)) {
@@ -141,7 +161,7 @@ public class UndertowApplication {
 
         DispatchController dispatchController = new DispatchController(controllers);
 
-        return new UndertowApplication(configuration, host, port, dispatchController, services, applicationMonitor);
+        return new UndertowApplication(configuration, host, port, dispatchController, components, services, applicationMonitor);
     }
 
     public String getHost() {
@@ -165,6 +185,13 @@ public class UndertowApplication {
         server.stop();
         for (Service service : services.values()) {
             service.stop();
+        }
+        for (Component component : components.values()) {
+            try {
+                component.close();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
         applicationMonitor.setServerStatus(HealthApplicationMonitor.ServerStatus.SHUTDOWN);
         LOG.info("Leaving.. Bye!");
