@@ -218,6 +218,9 @@ public class UndertowApplication {
         if (clazz.isAssignableFrom(server.getClass())) {
             return (R) server;
         } else {
+            if (components.containsKey(clazz)) {
+                return (R) components.get(clazz);
+            }
             if (services.containsKey(clazz)) {
                 return (R) services.get(clazz);
             }
