@@ -1,6 +1,7 @@
 package no.ssb.dc.application.controller;
 
 import io.undertow.server.HttpServerExchange;
+import no.ssb.dc.api.http.HttpStatus;
 import no.ssb.dc.api.http.Request;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -105,24 +106,28 @@ public class PathParserTest {
         assertEquals(true, pathDispatcher.dispatch("/check-integrity/another-topic/full", Request.Method.GET, mockExchange).outcome().get("INVOKED"));
     }
 
-    private void handleCheckIntegrity(PathHandler pathHandler) {
+    private HttpStatus handleCheckIntegrity(PathHandler pathHandler) {
         LOG.trace("handleCheckIntegrity invoked: {}", pathHandler.parameters());
         pathHandler.outcome().put("INVOKED", true);
+        return HttpStatus.HTTP_OK;
     }
 
-    private void handleCheckIntegrityTopic(PathHandler pathHandler) {
+    private HttpStatus handleCheckIntegrityTopic(PathHandler pathHandler) {
         LOG.trace("handleCheckIntegrityTopic invoked: {}", pathHandler.parameters());
         pathHandler.outcome().put("INVOKED", true);
+        return HttpStatus.HTTP_OK;
     }
 
-    private void handleDeleteCheckIntegrityTopic(PathHandler pathHandler) {
+    private HttpStatus handleDeleteCheckIntegrityTopic(PathHandler pathHandler) {
         LOG.trace("handleDeleteCheckIntegrityTopic invoked: {}", pathHandler.parameters());
         pathHandler.outcome().put("INVOKED", true);
+        return HttpStatus.HTTP_OK;
     }
 
-    private void handleFullSummary(PathHandler pathHandler) {
+    private HttpStatus handleFullSummary(PathHandler pathHandler) {
         LOG.trace("handleFullSummary invoked: {}", pathHandler.parameters());
         pathHandler.outcome().put("INVOKED", true);
+        return HttpStatus.HTTP_OK;
     }
 
 }

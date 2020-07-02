@@ -1,18 +1,20 @@
 package no.ssb.dc.application.controller;
 
-import java.util.function.Consumer;
+import no.ssb.dc.api.http.HttpStatus;
+
+import java.util.function.Function;
 
 class PathAction {
 
     final PathParser templateParser;
-    final Consumer<PathHandler> pathHandler;
+    final Function<PathHandler, HttpStatus> pathHandler;
 
-    private PathAction(PathParser templateParser, Consumer<PathHandler> pathHandler) {
+    private PathAction(PathParser templateParser, Function<PathHandler, HttpStatus> pathHandler) {
         this.templateParser = templateParser;
         this.pathHandler = pathHandler;
     }
 
-    static PathAction of(PathParser templateParser, Consumer<PathHandler> pathHandler) {
+    static PathAction of(PathParser templateParser, Function<PathHandler, HttpStatus> pathHandler) {
         return new PathAction(templateParser, pathHandler);
     }
 

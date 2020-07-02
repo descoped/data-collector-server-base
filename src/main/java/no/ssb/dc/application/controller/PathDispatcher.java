@@ -1,12 +1,13 @@
 package no.ssb.dc.application.controller;
 
 import io.undertow.server.HttpServerExchange;
+import no.ssb.dc.api.http.HttpStatus;
 import no.ssb.dc.api.http.Request;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class PathDispatcher {
 
@@ -24,18 +25,17 @@ public class PathDispatcher {
     }
 
     /**
-     * compare new templatePath with requestPath
+     * rules
      * <p>
      * /a equals /a/{b} = true
-     * /a/{b} equals /a/{b} = true
-     * /a/{b} equals /a/{c} = true
-     * /a/{b} equals /a = true
+     * /a/b equals /a/{b} = true
+     * /a/b equals /a/{c} = true
      *
      * @param templatePath
      * @param method
      * @param handlerCallback
      */
-    public void bind(String templatePath, Request.Method method, Consumer<PathHandler> handlerCallback) {
+    public void bind(String templatePath, Request.Method method, Function<PathHandler, HttpStatus> handlerCallback) {
         PathParser templatePathParser = PathParser.create(templatePath);
         List<String> templatePathElements = templatePathParser.elements();
         int lastTemplatePathElementIndex = templatePathElements.size() - 1;
@@ -52,10 +52,6 @@ public class PathDispatcher {
                 lastTemplatePathElementCeilingEntry = null;
             }
         }
-
-        /*
-            todo if a template path element is variable and the name differs from an existing one, raise an error -- should we care
-         */
 
         // create actions for last template path element
         for (int i = lastTemplatePathElementIndex; i >= 0; i--) {
@@ -129,9 +125,15 @@ public class PathDispatcher {
         }
         Map<String, String> variables = bindings.extractVariables();
 
-        Consumer<PathHandler> callback = actionEntry.getValue().pathHandler;
+        Function<PathHandler, HttpStatus> callback = actionEntry.getValue().pathHandler;
         PathHandler pathHandler = new PathHandler(exchange, variables);
-        callback.accept(pathHandler);
+
+        try {
+            HttpStatus status = callback.apply(pathHandler);
+            pathHandler.statusCode(status);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         return pathHandler;
     }
