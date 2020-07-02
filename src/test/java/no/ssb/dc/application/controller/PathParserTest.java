@@ -19,7 +19,7 @@ public class PathParserTest {
     private static final Logger LOG = LoggerFactory.getLogger(PathParserTest.class);
 
     @Test
-    void parsePath() {
+    public void parsePath() {
         String template = "/a/{b}/c";
 
         PathParser pathParser = PathParser.create(template);
@@ -51,7 +51,7 @@ public class PathParserTest {
     }
 
     @Test
-    void thatPathBindingsSatisfiesRequest() {
+    public void thatPathBindingsSatisfiesRequest() {
         String template = "/check-integrity/{topic}/full";
 
         PathParser pathParser = PathParser.create(template);
@@ -88,7 +88,7 @@ public class PathParserTest {
     }
 
     @Test
-    void pathDispatcher() {
+    public void pathDispatcher() {
         PathDispatcher pathDispatcher = PathDispatcher.create();
 
         pathDispatcher.bind("/check-integrity", Request.Method.GET, this::handleCheckIntegrity);
