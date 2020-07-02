@@ -93,29 +93,16 @@ public class PathParserTest {
         pathDispatcher.bind("/check-integrity", Request.Method.GET, this::handleCheckIntegrity);
         pathDispatcher.bind("/check-integrity/{topic}/full", Request.Method.GET, this::handleFullSummary);
         pathDispatcher.bind("/check-integrity/{topic}", Request.Method.GET, this::handleCheckIntegrityTopic);
+        pathDispatcher.bind("/check-integrity/{foo}", Request.Method.PUT, this::handleCheckIntegrityTopic);
         pathDispatcher.bind("/check-integrity/{topic}", Request.Method.DELETE, this::handleDeleteCheckIntegrityTopic);
-        pathDispatcher.dispatchHandlers.forEach((key,valeu) -> LOG.trace("{}", key.toString()));
+        pathDispatcher.dispatchHandlers().forEach((key,value) -> LOG.trace("{}", key.toString()));
 
         HttpServerExchange mockExchange = new HttpServerExchange(null);
         assertEquals(true, pathDispatcher.dispatch("/check-integrity", Request.Method.GET, mockExchange).outcome().get("INVOKED"));
         assertEquals(true, pathDispatcher.dispatch("/check-integrity/some-topic", Request.Method.GET, mockExchange).outcome().get("INVOKED"));
         assertEquals(true, pathDispatcher.dispatch("/check-integrity/some-topic", Request.Method.DELETE, mockExchange).outcome().get("INVOKED"));
+        assertEquals(true, pathDispatcher.dispatch("/check-integrity/put-topic", Request.Method.PUT, mockExchange).outcome().get("INVOKED"));
         assertEquals(true, pathDispatcher.dispatch("/check-integrity/another-topic/full", Request.Method.GET, mockExchange).outcome().get("INVOKED"));
-    }
-
-    @Test
-    void name() {
-        int stringCompare = "foo".compareTo("foo");
-        int intCompare = Integer.valueOf(10).compareTo(Integer.valueOf(10));
-        int enumCompare = Request.Method.GET.compareTo(Request.Method.DELETE);
-        int enum2Compare = Request.Method.GET.compareTo(Request.Method.GET);
-        int compare = Integer.compare(intCompare, enumCompare);
-        int compare2 = Integer.compare(intCompare, enum2Compare);
-        LOG.trace("{} -- {} -- {} -- {} -- {}", intCompare, stringCompare, enumCompare, compare, compare2);
-
-        PathPredicate p1 = PathPredicate.of(1, "item", Request.Method.GET);
-        PathPredicate p2 = PathPredicate.of(1, "item", Request.Method.DELETE);
-        LOG.trace("{} -- {} -- {} -- {}", p1.compareTo(p2), p1.equals(p2), p1.hashCode(), p2.hashCode());
     }
 
     private void handleCheckIntegrity(PathHandler pathHandler) {

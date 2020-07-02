@@ -46,7 +46,8 @@ class PathPredicate implements Comparable<PathPredicate> {
     @Override
     public String toString() {
         return "PathPredicate{" +
-                "pathElement='" + pathElement + '\'' +
+                "index=" + index +
+                ", pathElement='" + pathElement + '\'' +
                 ", method=" + method +
                 '}';
     }

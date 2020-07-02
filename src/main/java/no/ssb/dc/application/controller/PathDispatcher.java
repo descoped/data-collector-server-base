@@ -3,19 +3,14 @@ package no.ssb.dc.application.controller;
 import io.undertow.server.HttpServerExchange;
 import no.ssb.dc.api.http.Request;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NavigableMap;
-import java.util.TreeMap;
 import java.util.function.Consumer;
 
 public class PathDispatcher {
 
-    final NavigableMap<PathPredicate, PathAction> dispatchHandlers = new TreeMap<>();
-
-    private int comparator(PathPredicate k1, PathPredicate k2) {
-        return Integer.compare(k1.index.compareTo(k2.index), k1.method.compareTo(k2.method));
-    }
+    private final Map<PathPredicate, PathAction> dispatchHandlers = new LinkedHashMap<>();
 
     private PathDispatcher() {
     }
@@ -48,7 +43,7 @@ public class PathDispatcher {
 
         // ceiling key
         PathPredicate lastTemplatePathElementPredicate = PathPredicate.of(lastTemplatePathElementIndex, lastTemplatePathElement, method);
-        Map.Entry<PathPredicate, PathAction> lastTemplatePathElementCeilingEntry = dispatchHandlers.ceilingEntry(lastTemplatePathElementPredicate);
+        Map.Entry<PathPredicate, PathAction> lastTemplatePathElementCeilingEntry = ceilingEntry(lastTemplatePathElementPredicate);
 
         // validate ceiling key with predicate
         if (lastTemplatePathElementCeilingEntry != null) {
@@ -80,13 +75,40 @@ public class PathDispatcher {
         }
     }
 
+    Map<PathPredicate, PathAction> dispatchHandlers() {
+        Map<PathPredicate, PathAction> sortedMap = new LinkedHashMap<>();
+        dispatchHandlers.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry -> sortedMap.put(entry.getKey(), entry.getValue()));
+        return sortedMap;
+    }
+
+    Map.Entry<PathPredicate, PathAction> ceilingEntry(PathPredicate pathPredicate) {
+        Map<PathPredicate, PathAction> sortedMap = dispatchHandlers();
+        Map.Entry<PathPredicate, PathAction> ceiling = null;
+        for (Map.Entry<PathPredicate, PathAction> entry : sortedMap.entrySet()) {
+            // if index, method and path length is satisfied, it is a ceilingEntry
+            if (ceiling == null && pathPredicate.index.equals(entry.getKey().index) && pathPredicate.pathElement.equals(entry.getKey().pathElement)) {
+                ceiling = entry;
+            }
+
+            if (ceiling == null && pathPredicate.index.equals(entry.getKey().index) && isVariableExpression(entry.getKey().pathElement)) {
+                ceiling = entry;
+            }
+
+            if (ceiling != null && pathPredicate.index.equals(entry.getKey().index) && pathPredicate.method.equals(entry.getKey().method)) {
+                ceiling = entry;
+                break;
+            }
+        }
+        return ceiling;
+    }
+
     public PathHandler dispatch(String requestPath, Request.Method method, HttpServerExchange exchange) {
         PathParser requestPathParser = PathParser.create(requestPath);
         List<String> requestPathElements = requestPathParser.elements();
         int lastRequestPathElementIndex = requestPathElements.size() - 1;
-        String lastTemplatePathElement = requestPathElements.get(lastRequestPathElementIndex);
+        String lastRequestPathElement = requestPathElements.get(lastRequestPathElementIndex);
 
-        Map.Entry<PathPredicate, PathAction> actionEntry = dispatchHandlers.ceilingEntry(PathPredicate.of(lastRequestPathElementIndex, lastTemplatePathElement, method));
+        Map.Entry<PathPredicate, PathAction> actionEntry = ceilingEntry(PathPredicate.of(lastRequestPathElementIndex, lastRequestPathElement, method));
         if (actionEntry == null) {
             throw new RuntimeException("Unable to resolve action-handler for: " + requestPath);
         }
@@ -97,7 +119,7 @@ public class PathDispatcher {
         }
 
         PathParser templateParser = actionEntry.getValue().templateParser;
-        if (lastRequestPathElementIndex != templateParser.elements().size() - 1) {
+        if (templateParser == null || lastRequestPathElementIndex != templateParser.elements().size() - 1) {
             throw new RuntimeException("Panic! The action-handler for: " + requestPath + " is incorrect! Found: " + actionEntry);
         }
 
