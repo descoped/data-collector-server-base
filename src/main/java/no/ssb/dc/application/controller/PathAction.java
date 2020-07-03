@@ -2,6 +2,7 @@ package no.ssb.dc.application.controller;
 
 import no.ssb.dc.api.http.HttpStatus;
 
+import java.util.Objects;
 import java.util.function.Function;
 
 class PathAction {
@@ -26,4 +27,16 @@ class PathAction {
         return templateParser == null && pathHandler == null;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PathAction that = (PathAction) o;
+        return Objects.equals(templateParser, that.templateParser);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(templateParser);
+    }
 }

@@ -1,6 +1,7 @@
 package no.ssb.dc.application.controller;
 
 import java.util.List;
+import java.util.Objects;
 
 public class PathParser {
 
@@ -23,4 +24,16 @@ public class PathParser {
         return new PathBindings(template, elements);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PathParser that = (PathParser) o;
+        return Objects.equals(template, that.template);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(template);
+    }
 }
