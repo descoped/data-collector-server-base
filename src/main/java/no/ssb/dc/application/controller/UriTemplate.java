@@ -1,7 +1,7 @@
 package no.ssb.dc.application.controller;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -23,7 +23,7 @@ public class UriTemplate {
     }
 
     private List<String> parse(String uri) {
-        List<String> elements = new LinkedList<>();
+        List<String> elements = new ArrayList<>();
         Matcher matcher = PATH_GROUPS_PATTERN.matcher(uri);
         int i = 0;
         while (matcher.find()) {
