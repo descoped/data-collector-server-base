@@ -9,8 +9,9 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Comparator;
+import java.util.Set;
+import java.util.TreeSet;
 
 class ServiceProviderDiscovery {
 
@@ -28,7 +29,7 @@ class ServiceProviderDiscovery {
     }
 
     static <T> Iterable<Class<T>> discover(Class<T> serviceProviderClass) {
-        List<Class<T>> serviceList = new ArrayList<>();
+        Set<Class<T>> serviceList = new TreeSet<>(Comparator.comparing(Class::getName));
         try (ScanResult scanResult = new ClassGraph().whitelistPathsNonRecursive("META-INF/services").scan()) {
             LOG.trace("serviceProviderClass: {}", serviceProviderClass.getName());
             scanResult.getResourcesWithLeafName(serviceProviderClass.getName()).forEachByteArray((Resource res, byte[] content) -> {
@@ -41,7 +42,6 @@ class ServiceProviderDiscovery {
                 }
             });
         }
-        // TODO check for duplicate contextPaths
         return serviceList;
     }
 }
