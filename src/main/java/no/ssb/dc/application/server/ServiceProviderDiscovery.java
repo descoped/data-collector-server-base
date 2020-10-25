@@ -9,9 +9,8 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 class ServiceProviderDiscovery {
 
@@ -29,7 +28,7 @@ class ServiceProviderDiscovery {
     }
 
     static <T> Iterable<Class<T>> discover(Class<T> serviceProviderClass) {
-        Set<Class<T>> serviceList = new TreeSet<>(Comparator.comparing(Class::getName));
+        Set<Class<T>> serviceList = new LinkedHashSet<>();
         try (ScanResult scanResult = new ClassGraph().whitelistPathsNonRecursive("META-INF/services").scan()) {
             LOG.trace("serviceProviderClass: {}", serviceProviderClass.getName());
             scanResult.getResourcesWithLeafName(serviceProviderClass.getName()).forEachByteArray((Resource res, byte[] content) -> {
