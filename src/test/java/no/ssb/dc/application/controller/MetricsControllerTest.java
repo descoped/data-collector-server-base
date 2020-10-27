@@ -34,7 +34,7 @@ public class MetricsControllerTest {
     private static UndertowApplication server;
 
     @BeforeAll
-    static void beforeAll() {
+    public static void beforeAll() {
         DynamicConfiguration configuration = new StoreBasedDynamicConfiguration.Builder()
                 .values("prometheus.defaultExports.disabled", "true")
                 .build();
@@ -43,7 +43,7 @@ public class MetricsControllerTest {
     }
 
     @AfterAll
-    static void afterAll() {
+    public static void afterAll() {
         server.stop();
     }
 
@@ -67,21 +67,21 @@ public class MetricsControllerTest {
     }
 
     @Test
-    void thatMetricsAreHealth() {
+    public void thatMetricsAreHealth() {
         HttpResponse response = GET("/metrics/-/healthy");
         assertEquals(200, response.statusCode);
         assertEquals("Exporter is Healthy.", response.body);
     }
 
     @Test
-    void thatMetricsAreReported() throws IOException, InterruptedException {
+    public void thatMetricsAreReported() throws IOException, InterruptedException {
         HttpResponse response = GET("/metrics");
         assertEquals(200, response.statusCode);
         LOG.trace("body:\n{}", response.body);
     }
 
     @Test
-    void experiment() throws InterruptedException {
+    public void experiment() throws InterruptedException {
         Counter requests = Counter.build("requests_total", "Total requests").namespace("ns").subsystem("foo").register();
         requests.inc();
 
