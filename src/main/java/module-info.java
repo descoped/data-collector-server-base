@@ -20,6 +20,7 @@ module no.ssb.dc.application {
     opens no.ssb.dc.application.metrics;
 
     exports no.ssb.dc.application.spi;
+    exports no.ssb.dc.application.ssl;
     exports no.ssb.dc.application.server;
     exports no.ssb.dc.application.controller;
     exports no.ssb.dc.application.engine;

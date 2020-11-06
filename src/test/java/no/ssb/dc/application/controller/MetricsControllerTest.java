@@ -38,7 +38,7 @@ public class MetricsControllerTest {
         DynamicConfiguration configuration = new StoreBasedDynamicConfiguration.Builder()
                 .values("prometheus.defaultExports.disabled", "true")
                 .build();
-        server = UndertowApplication.initializeUndertowApplication(configuration, findFree());
+        server = UndertowApplication.initializeUndertowApplication(configuration, findFree(), null);
         server.start();
     }
 
