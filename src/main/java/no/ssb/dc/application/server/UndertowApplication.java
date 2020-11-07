@@ -19,7 +19,7 @@ import no.ssb.dc.application.metrics.MetricsResourceFactory;
 import no.ssb.dc.application.spi.Component;
 import no.ssb.dc.application.spi.Controller;
 import no.ssb.dc.application.spi.Service;
-import no.ssb.dc.application.ssl.BusinessSSLBundleSupplier;
+import no.ssb.dc.application.ssl.BusinessSSLResourceSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,14 +98,14 @@ public class UndertowApplication {
     }
 
     public static UndertowApplication initializeUndertowApplication(DynamicConfiguration configuration,
-                                                                    BusinessSSLBundleSupplier businessSSLBundleSupplier) {
+                                                                    BusinessSSLResourceSupplier businessSSLResourceSupplier) {
         int port = configuration.evaluateToInt("http.port");
-        return initializeUndertowApplication(configuration, port, businessSSLBundleSupplier);
+        return initializeUndertowApplication(configuration, port, businessSSLResourceSupplier);
     }
 
     public static UndertowApplication initializeUndertowApplication(DynamicConfiguration configuration,
                                                                     Integer port,
-                                                                    BusinessSSLBundleSupplier businessSSLBundleSupplier) {
+                                                                    BusinessSSLResourceSupplier businessSSLResourceSupplier) {
         if (!configuration.evaluateToBoolean("prometheus.defaultExports.disabled")) {
             DefaultExports.initialize();
         }
@@ -125,7 +125,7 @@ public class UndertowApplication {
         // scan and register Components
         InjectionParameters componentInjectionParameters = new InjectionParameters();
         componentInjectionParameters.register(DynamicConfiguration.class, configuration);
-        componentInjectionParameters.register(BusinessSSLBundleSupplier.class, businessSSLBundleSupplier);
+        componentInjectionParameters.register(BusinessSSLResourceSupplier.class, businessSSLResourceSupplier);
         Map<Class<? extends Component>, Component> components = new LinkedHashMap<>();
         for (Class<Component> componentClass : ServiceProviderDiscovery.discover(Component.class)) {
             Component component = ObjectCreator.newInstance(componentClass, componentInjectionParameters);
