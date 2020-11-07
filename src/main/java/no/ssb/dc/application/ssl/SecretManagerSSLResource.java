@@ -28,8 +28,8 @@ public class SecretManagerSSLResource implements BusinessSSLResource {
 
         Map<String, String> providerConfiguration = new LinkedHashMap<>();
         providerConfiguration.put("secrets.provider", businessSslResourceProvider);
-        providerConfiguration.put("secrets.projectId", configuration.evaluateToString("data.collector.sslBundle.gcs.projectId"));
-        String gcsServiceAccountKeyPath = configuration.evaluateToString("data.collector.sslBundle.gcs.serviceAccountKeyPath");
+        providerConfiguration.put("secrets.projectId", configuration.evaluateToString("data.collector.sslBundle.gcp.projectId"));
+        String gcsServiceAccountKeyPath = configuration.evaluateToString("data.collector.sslBundle.gcp.serviceAccountKeyPath");
         if (gcsServiceAccountKeyPath != null) {
             providerConfiguration.put("secrets.serviceAccountKeyPath", gcsServiceAccountKeyPath);
         }
