@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static no.ssb.dc.api.security.BusinessSSLResource.safeConvertBytesToCharArrayAsUTF8;
+import static no.ssb.dapla.secrets.api.SecretManagerClient.safeCharArrayAsUTF8;
 
 public class SecretManagerSSLResource implements BusinessSSLResource {
 
@@ -58,12 +58,12 @@ public class SecretManagerSSLResource implements BusinessSSLResource {
 
     @Override
     public char[] publicCertificate() {
-        return isPEM() ? safeConvertBytesToCharArrayAsUTF8(secretManagerClient.readBytes(configuration.evaluateToString("data.collector.sslBundle.publicCertificate"))) : new char[0];
+        return isPEM() ? safeCharArrayAsUTF8(secretManagerClient.readBytes(configuration.evaluateToString("data.collector.sslBundle.publicCertificate"))) : new char[0];
     }
 
     @Override
     public char[] privateCertificate() {
-        return isPEM() ? safeConvertBytesToCharArrayAsUTF8(secretManagerClient.readBytes(configuration.evaluateToString("data.collector.sslBundle.privateCertificate"))) : new char[0];
+        return isPEM() ? safeCharArrayAsUTF8(secretManagerClient.readBytes(configuration.evaluateToString("data.collector.sslBundle.privateCertificate"))) : new char[0];
     }
 
     @Override
@@ -73,7 +73,7 @@ public class SecretManagerSSLResource implements BusinessSSLResource {
 
     @Override
     public char[] passphrase() {
-        return safeConvertBytesToCharArrayAsUTF8(secretManagerClient.readBytes(configuration.evaluateToString("data.collector.sslBundle.passphrase")));
+        return safeCharArrayAsUTF8(secretManagerClient.readBytes(configuration.evaluateToString("data.collector.sslBundle.passphrase")));
     }
 
     @Override
