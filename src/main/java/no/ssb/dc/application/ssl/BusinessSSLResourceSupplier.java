@@ -1,19 +1,18 @@
 package no.ssb.dc.application.ssl;
 
-import no.ssb.dc.api.security.ProvidedBusinessSSLResource;
+import no.ssb.dc.api.security.BusinessSSLResource;
 
 import java.util.function.Supplier;
 
-public class BusinessSSLResourceSupplier implements Supplier<ProvidedBusinessSSLResource> {
+public class BusinessSSLResourceSupplier {
 
-    private final Supplier<ProvidedBusinessSSLResource> sslResourceSupplier;
+    private final Supplier<? extends BusinessSSLResource> sslResourceSupplier;
 
-    public BusinessSSLResourceSupplier(Supplier<ProvidedBusinessSSLResource> sslResourceSupplier) {
+    public BusinessSSLResourceSupplier(Supplier<? extends BusinessSSLResource> sslResourceSupplier) {
         this.sslResourceSupplier = sslResourceSupplier;
     }
 
-    @Override
-    public ProvidedBusinessSSLResource get() {
-        return sslResourceSupplier != null ? sslResourceSupplier.get() : null;
+    public Supplier<? extends BusinessSSLResource> get() {
+        return sslResourceSupplier;
     }
 }

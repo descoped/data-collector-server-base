@@ -3,6 +3,7 @@ module no.ssb.dc.application {
     requires no.ssb.service.provider.api;
     requires no.ssb.config;
     requires no.ssb.dc.api;
+    requires dapla.secrets.client.api;
 
     requires org.slf4j;
     requires io.github.classgraph;
