@@ -110,6 +110,10 @@ public class UndertowApplication {
             DefaultExports.initialize();
         }
         LOG.info("Initializing Data Collector server ...");
+        if (businessSSLResourceSupplier != null) {
+            LOG.info("Use delegated certificate provider: {}", configuration.evaluateToString("data.collector.sslBundle.provider"));
+        }
+
         MetricsResourceFactory metricsResourceFactory = MetricsResourceFactory.create();
 
         HealthResourceFactory healthResourceFactory = HealthResourceFactory.create();
