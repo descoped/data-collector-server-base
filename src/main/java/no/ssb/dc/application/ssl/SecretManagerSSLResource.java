@@ -23,6 +23,9 @@ public class SecretManagerSSLResource implements BusinessSSLResource {
     public SecretManagerSSLResource(DynamicConfiguration configuration) {
         this.configuration = configuration;
         this.businessSslResourceProvider = configuration.evaluateToString("data.collector.sslBundle.provider");
+        if (businessSslResourceProvider == null) {
+            throw new RuntimeException("SSL Bundle Provider is NOT defined! Please check your config!");
+        }
         this.hasBusinessSslResourceProvider = "google-secret-manager".equals(businessSslResourceProvider);
         LOG.info("Create BusinessSSL resource provider: {}", businessSslResourceProvider);
 
