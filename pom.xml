@@ -9,16 +9,16 @@
 
     <name>Data Collector Server Base</name>
     <description>Data Collector Server Base</description>
-    <url>https://github.com/statisticsnorway/</url>
+    <url>https://github.com/descoped/</url>
     <inceptionYear>2019</inceptionYear>
 
     <properties>
-        <java.version>15</java.version>
+        <java.version>17</java.version>
         <module.build.sourceEncoding>UTF-8</module.build.sourceEncoding>
         <maven.javadoc.skip>true</maven.javadoc.skip>
 
-        <slf4j.version>1.8.0-beta2</slf4j.version>
-        <logback.version>1.3.0-alpha4</logback.version>
+        <slf4j.version>2.0.16</slf4j.version>
+        <logback.version>1.5.8</logback.version>
     </properties>
 
     <licenses>
@@ -32,22 +32,20 @@
         <developer>
             <name>Ove Ranheim</name>
             <email>ove.ranheim@gmail.com</email>
-            <url>https://www.linkedin.com/in/oranheim/</url>
-            <organization>Capra Consulting AS</organization>
-            <organizationUrl>https://www.capraconsulting.no/</organizationUrl>
-        </developer>
-        <developer>
-            <name>Kim Christian Gaarder</name>
-            <email>kim.christian.gaarder@gmail.com</email>
-            <url>https://www.linkedin.com/in/kimchristiangaarder/</url>
-            <organization>Capra Consulting AS</organization>
-            <organizationUrl>https://www.capraconsulting.no/</organizationUrl>
+            <url>https://www.linkedin.com/in/overanheim/</url>
         </developer>
     </developers>
 
+    <contributors>
+        <contributor>
+            <name>Kim Christian Gaarder</name>
+            <url>https://www.linkedin.com/in/kimchristiangaarder/</url>
+        </contributor>
+    </contributors>
+
     <scm>
-        <connection>scm:git:git://github.com/statisticsnorway/data-collector-server-base.git</connection>
-        <developerConnection>scm:git:git@github.com:statisticsnorway/data-collector-server-base.git
+        <connection>scm:git:git://github.com/descoped/data-collector-server-base.git</connection>
+        <developerConnection>scm:git:git@github.com:descoped/data-collector-server-base.git
         </developerConnection>
         <tag>HEAD</tag>
     </scm>
@@ -63,37 +61,37 @@
         <dependency>
             <groupId>no.ssb.dc</groupId>
             <artifactId>data-collector-api</artifactId>
-            <version>0.1</version>
+            <version>0.2-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>io.undertow</groupId>
             <artifactId>undertow-core</artifactId>
-            <version>2.0.29.Final</version>
+            <version>2.3.17.Final</version>
         </dependency>
 
         <dependency>
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
-            <version>2.3.29</version>
+            <version>2.3.33</version>
         </dependency>
 
         <dependency>
             <groupId>io.prometheus</groupId>
             <artifactId>simpleclient_common</artifactId>
-            <version>0.8.1</version>
+            <version>0.16.0</version>
         </dependency>
 
         <dependency>
             <groupId>io.prometheus</groupId>
             <artifactId>simpleclient_hotspot</artifactId>
-            <version>0.8.1</version>
+            <version>0.16.0</version>
         </dependency>
 
         <dependency>
             <groupId>io.prometheus</groupId>
             <artifactId>simpleclient</artifactId>
-            <version>0.8.1</version>
+            <version>0.16.0</version>
         </dependency>
 
         <dependency>
@@ -139,21 +137,21 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.14.0</version>
+            <version>3.26.3</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp-urlconnection</artifactId>
-            <version>4.4.0</version>
+            <version>4.12.0</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.6.0</version>
+            <version>5.11.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -166,7 +164,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>3.0.1</version>
+                        <version>3.3.1</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
@@ -180,7 +178,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.1.0</version>
+                        <version>3.10.0</version>
                         <configuration>
                             <encoding>UTF-8</encoding>
                             <additionalOptions>-Xdoclint:none</additionalOptions>
@@ -198,7 +196,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
+                        <version>3.2.6</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
@@ -219,37 +217,6 @@
             </build>
         </profile>
         <profile>
-            <id>ssb-bip</id>
-            <repositories>
-                <repository>
-                    <id>ssb-bip-releases</id>
-                    <url>https://nexus.prod-bip-ci.ssb.no/repository/maven-releases/</url>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                </repository>
-                <repository>
-                    <id>ssb-bip-snapshots</id>
-                    <url>https://nexus.prod-bip-ci.ssb.no/repository/maven-snapshots/</url>
-                    <snapshots>
-                        <enabled>true</enabled>
-                    </snapshots>
-                </repository>
-            </repositories>
-            <distributionManagement>
-                <repository>
-                    <id>ssb-bip-releases</id>
-                    <name>SSB Nexus Releases</name>
-                    <url>https://nexus.prod-bip-ci.ssb.no/repository/maven-releases/</url>
-                </repository>
-                <snapshotRepository>
-                    <id>ssb-bip-snapshots</id>
-                    <name>SSB Snapshot Repository</name>
-                    <url>https://nexus.prod-bip-ci.ssb.no/repository/maven-snapshots/</url>
-                </snapshotRepository>
-            </distributionManagement>
-        </profile>
-        <profile>
             <id>coverage</id>
             <properties>
                 <sonar.coverage.jacoco.xmlReportPaths>
@@ -261,12 +228,12 @@
                     <plugin>
                         <groupId>org.sonarsource.scanner.maven</groupId>
                         <artifactId>sonar-maven-plugin</artifactId>
-                        <version>3.7.0.1746</version>
+                        <version>4.0.0.4121</version>
                     </plugin>
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.8.6</version>
+                        <version>0.8.12</version>
                         <executions>
                             <execution>
                                 <id>prepare-agent</id>
@@ -286,11 +253,10 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <!-- Newer version do not yet work with Java 11 -->
-                        <version>3.0.0-M5</version>
+                        <version>3.5.0</version>
                         <!-- workaround for: https://issues.jboss.org/browse/UNDERTOW-1355 -->
                         <configuration>
                             <argLine>
-                                ${argLine}
                                 --illegal-access=deny
                                 -Xmx1500m
                             </argLine>
@@ -307,7 +273,7 @@
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.8</version>
+                        <version>1.7.0</version>
                         <extensions>true</extensions>
                         <configuration>
                             <serverId>ossrh</serverId>
@@ -319,7 +285,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-release-plugin</artifactId>
-                        <version>2.5.3</version>
+                        <version>3.1.1</version>
                         <configuration>
                             <autoVersionSubmodules>true</autoVersionSubmodules>
                             <useReleaseProfile>false</useReleaseProfile>
@@ -336,7 +302,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.13.0</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
@@ -350,7 +316,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.3.1</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
                 </configuration>
@@ -359,13 +325,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.4.2</version>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M5</version>
+                <version>3.5.0</version>
                 <configuration>
                     <argLine>
                         --illegal-access=deny
@@ -377,10 +343,31 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>3.0.0-M4</version>
+                <version>3.1.1</version>
                 <configuration>
                     <tagNameFormat>@{project.version}</tagNameFormat>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>enforce-maven</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>[3.6.3,4)</version>
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
