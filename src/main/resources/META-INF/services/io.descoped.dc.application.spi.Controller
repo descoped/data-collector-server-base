@@ -1,0 +1,2 @@
+io.descoped.dc.application.controller.HealthController
+io.descoped.dc.application.controller.MetricsController

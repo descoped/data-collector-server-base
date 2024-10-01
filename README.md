@@ -1,8 +1,10 @@
 # Data Collector Server Base
 
+![Build Status](https://img.shields.io/github/actions/workflow/status/descoped/data-collector-server-base/coverage-and-sonar-analysis.yml)
+![Latest Tag](https://img.shields.io/github/v/tag/descoped/data-collector-server-base)
+![Renovate](https://img.shields.io/badge/renovate-enabled-brightgreen.svg)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=descoped_data-collector-server-base&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=descoped_data-collector-server-base) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=descoped_data-collector-server-base&metric=coverage)](https://sonarcloud.io/summary/new_code?id=descoped_data-collector-server-base)
+[![Snyk Security Score](https://snyk.io/test/github/descoped/data-collector-server-base/badge.svg)](https://snyk.io/test/github/descoped/data-collector-server-base)
 
-[![Build Status](https://drone.prod-bip-ci.ssb.no/api/badges/statisticsnorway/data-collector-server-base/status.svg)](https://drone.prod-bip-ci.ssb.no/statisticsnorway/data-collector-server-base)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/0637c9747680459c87fa8f237e5ecff7)](https://www.codacy.com/manual/oranheim/data-collector-server-base?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=statisticsnorway/data-collector-server-base&amp;utm_campaign=Badge_Grade)
-[![codecov](https://codecov.io/gh/statisticsnorway/data-collector-server-base/branch/master/graph/badge.svg)](https://codecov.io/gh/statisticsnorway/data-collector-server-base)
-
-For more information about Data Collector, please refer to the [Data Collector documentation](https://github.com/statisticsnorway/data-collector-project).
+For more information about Data Collector, please refer to
+the [Data Collector documentation](https://github.com/descoped/data-collector-project).

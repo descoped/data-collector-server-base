@@ -1,9 +1,9 @@
-module no.ssb.dc.application {
+module io.descoped.dc.application {
 
-    requires no.ssb.service.provider.api;
-    requires no.ssb.config;
-    requires no.ssb.dc.api;
-    requires dapla.secrets.client.api;
+    requires io.descoped.service.provider.api;
+    requires io.descoped.dynamic.config;
+    requires io.descoped.dc.api;
+    requires secrets.client.api;
 
     requires org.slf4j;
     requires io.github.classgraph;
@@ -16,15 +16,15 @@ module no.ssb.dc.application {
 
     requires freemarker;
 
-    opens no.ssb.dc.application.health to com.fasterxml.jackson.databind;
-    opens no.ssb.dc.application.engine; // open to unnamed module freemarker
-    opens no.ssb.dc.application.metrics;
+    opens io.descoped.dc.application.health to com.fasterxml.jackson.databind;
+    opens io.descoped.dc.application.engine; // open to unnamed module freemarker
+    opens io.descoped.dc.application.metrics;
 
-    exports no.ssb.dc.application.spi;
-    exports no.ssb.dc.application.ssl;
-    exports no.ssb.dc.application.server;
-    exports no.ssb.dc.application.controller;
-    exports no.ssb.dc.application.engine;
-    exports no.ssb.dc.application.health;
-    exports no.ssb.dc.application.metrics;
+    exports io.descoped.dc.application.spi;
+    exports io.descoped.dc.application.ssl;
+    exports io.descoped.dc.application.server;
+    exports io.descoped.dc.application.controller;
+    exports io.descoped.dc.application.engine;
+    exports io.descoped.dc.application.health;
+    exports io.descoped.dc.application.metrics;
 }
