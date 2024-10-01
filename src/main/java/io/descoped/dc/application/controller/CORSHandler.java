@@ -77,6 +77,11 @@ public class CORSHandler implements HttpHandler {
         this.originPatterns = originPatterns;
         this.supportsCredential = supportsCredential;
         this.preflightResponseCode = preflightResponseCode;
+
+        if (maxAge == -1) {
+            throw new IllegalStateException("maxAge cannot be -1 due to potential memory leak vulnerabilities.");
+        }
+
         this.maxAge = maxAge;
         this.allowedMethods = allowedMethods;
         this.allowedHeaders = allowedHeaders;
