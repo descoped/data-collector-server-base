@@ -25,7 +25,7 @@ public class HealthModuleInfoResourceControllerTest {
     @Test
     public void thatModuleListIsEmptyUntilModuleSystemCanBeInitializedInTests() {
         HealthModuleInfoResource healthModuleInfoResource = new HealthModuleInfoResource();
-        assertEquals(((List) healthModuleInfoResource.resource()).size(), 5);
+        assertEquals(((List) healthModuleInfoResource.resource()).size(), 6);
         System.out.printf("%s -> %s%n", healthModuleInfoResource.name(), healthModuleInfoResource.resource());
     }
 
