@@ -3,7 +3,7 @@ module io.descoped.dc.application {
     requires io.descoped.service.provider.api;
     requires io.descoped.dynamic.config;
     requires io.descoped.dc.api;
-    requires secrets.client.api;
+    requires io.descoped.secrets.client.api;
 
     requires org.slf4j;
     requires io.github.classgraph;
